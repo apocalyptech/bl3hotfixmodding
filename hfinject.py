@@ -20,6 +20,7 @@
 # <https://www.gnu.org/licenses/>.
 
 import os
+import gzip
 
 class InjectHotfix:
 
@@ -97,7 +98,15 @@ class InjectHotfix:
 
     def response(self, flow):
         if flow.request.path == '/v2/client/epic/pc/oak/verification':
-            cur_data = flow.response.data.content.decode('utf8')
+
+            gzipped = False
+            if 'Content-Encoding' in flow.response.headers and flow.response.headers['Content-Encoding'] == 'gzip':
+                raw_data = gzip.decompress(flow.response.data.content)
+                gzipped = True
+            else:
+                raw_data = flow.response.data.content
+
+            cur_data = raw_data.decode('utf8')
             if cur_data.endswith(']}]}'):
                 self.load_modlist()
                 statements = ['']
@@ -112,7 +121,10 @@ class InjectHotfix:
                         to_inject,
                         cur_data[-4:],
                         )
-                flow.response.data.content = cur_data.encode('utf8')
+                if gzipped:
+                    flow.response.data.content = gzip.compress(cur_data.encode('utf8'))
+                else:
+                    flow.response.data.content = cur_data.encode('utf8')
                 #if 'Content-Length' in flow.response.headers:
                 #    # This isn't actually the case for GBX
                 #    flow.response.headers['Content-Length'] = str(len(flow.response.data.content))
