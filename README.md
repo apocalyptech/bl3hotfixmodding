@@ -1,7 +1,7 @@
 Borderlands 3 Hotfix-Based Modding
 ==================================
 
-There is no traditional modding in BL3 (as of October 20, 2019) like there
+There is no traditional modding in BL3 (as of January 22, 2019) like there
 is for BL2/TPS.  In the meantime, though, while that's being figured out,
 there is *technically* a method which could be used by enterprising and
 technically savvy would-be modders: intercepting the GBX-provided
@@ -58,15 +58,12 @@ You'll want to take a look through there to get a feel for what
 hotfixes look like, because if you're constructing them by hand
 you'll need to know what they look like.
 
-One of the best resources for knowing exactly how BL3 hotfixes
-do their thing is by looking at the *existing* BL3 hotfixes.
-There's an archive of BL3 hotfixes which has been collecting data
-since a week or so after the release of Borderlands 3, which
-can be found here: [BLCM's "bl3hotfixes"](https://github.com/BLCM/bl3hotfixes/).
-Additionally, I've got a Google Sheets page which has the total
-collected hotfixes which have been used by GBX (including ones
-which are no longer active), divided out into columns which can
-make analysis a lot easier.  That sheet [can be found here](https://drive.google.com/open?id=1kfkC2hJs0hZSr12bvrQlY0GyEH4S_KAI_xIAqnGmKnQ).
+As for actually writing mods for Borderlands 3, there's a few
+newish pages on the BLCM wiki which goes into looking at BL3
+data and what we currently know about writing these hotfixes:
+
+ - [Accessing Borderlands 3 Data](https://github.com/BLCM/BLCMods/wiki/Accessing-Borderlands-3-Data)
+ - [Borderlands 3 Hotfix Modding](https://github.com/BLCM/BLCMods/wiki/Borderlands-3-Hotfix-Modding)
 
 Modifying the Hotfixes with mitmproxy
 -------------------------------------
@@ -171,44 +168,6 @@ those disconnect notices before proceeding to testing the mods.
 Note that that quick disconnect generally does *not* happen
 on the very first hotfix load, though.  Or at least not nearly
 as quickly.
-
-Getting Data
-------------
-
-BL2/TPS provided us with a very nice `obj dump` command from the
-console, which was used to generate the wonderful set of data that
-[BLCMM](https://github.com/BLCM/BLCMods/wiki/Borderlands-Community-Mod-Manager)'s OE
-and [FT/BLCMM Explorer](https://github.com/apocalyptech/ft-explorer)
-use, but unfortunately that's not available in BL3, so getting
-data is pretty spotty.
-
-You can actually get a fair amount of information just by
-unencrypting/uncompressing the Borderlands 3 data packs.  You'll have
-to Google around to figure out how to do that; it'll involve using
-an official Unreal Engine utility (make sure you've got the right
-version), and knowing the encryption key used on the data.  Once you
-have the unpacked data files (you can copy all the content from
-`OakGame/Content` into the main directory to avoid having files split
-between two locations, btw), the `*.uasset` files can be handy.
-If you have a program that looks for plaintext strings inside
-binary files (like the UNIX mainstay [strings](https://en.wikipedia.org/wiki/Strings_%28Unix%29)),
-you can get a list of all attribute names in that object, all
-other objects which it references, and so on.  There's definitely
-a lot of guesswork involved, but you can find a surprising amount
-just by looking at that.  One thing we *cannot* do at this level,
-yet, is find out what the actual values are to any attributes.
-
-If you want something a little more sophisticated, there is a DLL
-Injection technique available which can enable the BL3 console.
-Even without a functional `obj dump`, the command `getall` still
-exists, so you should be able to run, for instance,
-`getall ItemPoolData BalancedItems`, to get a list of what all
-currently-loaded item pools can drop.  I haven't been able to test
-that out myself, though, since I'm on Linux, and I haven't
-managed to get any DLL Injection technique to work in Wine/Proton.
-
-Finally, of course, looking through the existing hotfixes that GBX
-have been using can be a real help, as mentioned above.
 
 Mods
 ----
