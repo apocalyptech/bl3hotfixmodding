@@ -176,6 +176,16 @@ I've got all the stuff that I've been working on in the `injectdata`
 folder in here, so feel free to take a look in there.  The README
 in that directory should have some short descriptions of everything.
 
+Data Processing
+---------------
+
+The `dataprocessing` dir contains other various utils which I've used
+to deal with BL3 data, using the bl3data library included in `injectdata`.
+Really that stuff should be split off into its own project, but I
+don't feel like having a million bl3 repos lying around, and at the
+moment I'm probably the only person likely to be using them anyway, so
+it hardly matters.
+
 License
 -------
 
