@@ -1,7 +1,7 @@
 Borderlands 3 Hotfix-Based Modding
 ==================================
 
-There is no traditional modding in BL3 (as of January 22, 2019) like there
+There is no traditional modding in BL3 (as of February 18, 2019) like there
 is for BL2/TPS.  In the meantime, though, while that's being figured out,
 there is *technically* a method which could be used by enterprising and
 technically savvy would-be modders: intercepting the GBX-provided
@@ -26,7 +26,18 @@ MITM against yourself:
 Pay particular attention to point number 2, and make sure you
 understand the security ramifications of what you're doing.  Ideally
 your trust alterations are being done in as targetted a manner as
-possible.
+possible.  If you want to get real specific, the one hostname you'd
+want to look into is `discovery.services.gearboxsoftware.com`.
+
+Note that Epic Games Store itself does *not* like being MITM'd; they're
+probably doing at least some SSL pinning or other techniques to prevent
+that kind of thing.  If EGS doesn't auth to Epic properly, it'll launch
+BL3 in an "offline" mode and BL3 won't even attempt to try and load
+hotfixes, so you'll have to make sure that you're only working with the
+BL3 process itself.  Since I have no real interest in doing anything
+with the Epic traffic anyway, I've never taken a closer look to try and
+get around that, though I *wasn't* successful in getting BL3 to launch
+in a mode which asks for hotfixes when EGS considers itself offline.
 
 So: before going any further in here, make sure you've at least got
 that much already working.  BL3 should be asking for hotfixes, and
