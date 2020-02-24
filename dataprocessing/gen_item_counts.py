@@ -7,8 +7,10 @@ import csv
 import platform
 import itertools
 from bl3data.bl3data import BL3Data
+from bl3hotfixmod.bl3hotfixmod import Balance
 
 if 'cpython' in platform.python_implementation().lower():
+    print("")
     print("This app is slow, inefficient, and memory hungry.  PyPy3 won't help")
     print("with the inefficiency or memory-hungriness, but it *will* improve")
     print("runtimes considerably, by something like 6x.  It's recommended to")
@@ -31,7 +33,9 @@ part_cache = {}
 
 class PartTreeNode(object):
     """
-    A node in a Part tree
+    A node in a Part tree.  Using some legacy terminology here; "apls" used to refer
+    to the PartSet ActorPartLists structure, but we're using our Balance objects
+    instead.
     """
 
     def __init__(self, data, parent, part_set, apls, level=0):
@@ -51,7 +55,7 @@ class PartTreeNode(object):
             if len(self.apls) == 0:
                 break
             self.apl = self.apls[0]
-            if len(self.apl['Parts']) == 0:
+            if len(self.apl.partlist) == 0:
                 self.apls = self.apls[1:]
             else:
                 found_parts = True
@@ -62,11 +66,11 @@ class PartTreeNode(object):
 
         # Loop through parts to find out which ones actually apply here.
         parts = []
-        for part in self.apl['Parts']:
-            if 'export' in part['PartData']:
+        for part in self.apl.partlist:
+            part_name = part.part_name
+            if part_name == 'None':
                 parts.append(None)
             else:
-                part_name = part['PartData'][1]
                 (excluders, dependencies) = self._get_constraints(part_name)
 
                 # Process exclusions
@@ -96,10 +100,10 @@ class PartTreeNode(object):
 
         # Okay, now we've got a sanitized part list, put together a list of children
         possibilities = []
-        if self.apl['bCanSelectMultipleParts']:
+        if self.apl.select_multiple:
             # We're assuming that anything with weighted parts does NOT have
             # zero-weight parts.  TODO: maybe check that, later?
-            for mult in range(self.apl['MultiplePartSelectionRange']['Min'], self.apl['MultiplePartSelectionRange']['Max']+1):
+            for mult in range(self.apl.num_min, self.apl.num_max+1):
                 if mult == 0:
                     possibilities.append(set())
                 else:
@@ -166,9 +170,9 @@ class PartTreeNode(object):
         else:
             return sum([child.count_leaves() for child in self.children])
 
-class Balance(object):
+class BalanceTree(object):
     """
-    A weapon balance
+    A wrapper around the "stock" Balance object to do our recursive tree nonsense.
     """
 
     def __init__(self, bal_name, data):
@@ -176,36 +180,25 @@ class Balance(object):
         self.data = data
 
         # Load ourselves
-        self.bal_obj = data.get_data(bal_name)
-        if len(self.bal_obj) != 1:
-            raise Exception('Unknown export count ({}) for: {}'.format(len(self.bal_obj), self.bal_name))
-        self.last_bit = bal_name.split('/')[-1]
-        self.bal_data = self.bal_obj[0]
-
-        # Load our PartSet
-        self.partset_name = self.bal_data['PartSetData'][1]
-        self.partset_obj = data.get_data(self.partset_name)
-        if len(self.partset_obj) != 1:
-            raise Exception('Unknown export count ({}) for: {}'.format(len(self.partset_obj), self.partset_name))
-        self.partset_data = self.partset_obj[0]
+        self.bal = Balance.from_data(data, bal_name)
 
         # Start processing our part tree
-        self.tree = PartTreeNode(self.data, None, set(), self.partset_data['ActorPartLists'])
+        self.tree = PartTreeNode(self.data, None, set(), self.bal.categories)
 
     def gun_count(self, anointment_additions=None):
         """
         Counts the leaves of our tree
         """
         if anointment_additions \
-                and 'GenericParts' in self.partset_data \
-                and 'bEnabled' in self.partset_data['GenericParts'] \
-                and self.partset_data['GenericParts']['bEnabled'] \
-                and len(self.partset_data['GenericParts']['Parts']) > 0:
+                and 'RuntimeGenericPartList' in self.bal.raw_bal_data \
+                and 'bEnabled' in self.bal.raw_bal_data['RuntimeGenericPartList'] \
+                and self.bal.raw_bal_data['RuntimeGenericPartList']['bEnabled'] \
+                and len(self.bal.raw_bal_data['RuntimeGenericPartList']['PartList']) > 0:
             if self.bal_name in anointment_additions:
                 addition = anointment_additions[self.bal_name]
             else:
                 addition = 0
-            return self.tree.leaf_count * (len(self.partset_data['GenericParts']['Parts']) + addition)
+            return self.tree.leaf_count * (len(self.bal.raw_bal_data['RuntimeGenericPartList']['PartList']) + addition)
         else:
             return self.tree.leaf_count
 
@@ -544,7 +537,9 @@ for expansion_obj in [
 
 # Hardcodes in case you want to run a subset.
 #balances = [
-#        ('Auto', '', 'Named Weapon', '/Game/PatchDLC/Dandelion/Gear/Weapon/_Unique/AutoAime/Balance/Balance_SR_DAL_AutoAime'),
+#        #('Auto', '', 'Named Weapon', '/Game/PatchDLC/Dandelion/Gear/Weapon/_Unique/AutoAime/Balance/Balance_SR_DAL_AutoAime'),
+#        #('Hyper-Hydrator', '', 'Named Weapon', '/Game/Gear/Weapons/Pistols/Maliwan/_Shared/_Design/_Unique/HyperHydrator/Balance/Balance_PS_MAL_HyperHydrator'),
+#        ('Linc', '', 'Named Weapon', '/Game/Gear/Weapons/Pistols/Atlas/_Shared/_Design/_Unique/Drill/Balance/Balance_PS_ATL_Drill'),
 #        ]
 
 # Loop through
@@ -565,7 +560,7 @@ with open('gun_counts.csv', 'w') as odf:
     for manufacturer, gun_type, rarity, obj_name in balances:
 
         print('Processing {} {} {} ({})'.format(manufacturer, gun_type, rarity, obj_name))
-        bal = Balance(obj_name, data)
+        bal = BalanceTree(obj_name, data)
         total_count += bal.gun_count()
         total_count_anoint += bal.gun_count(anointment_additions)
 
