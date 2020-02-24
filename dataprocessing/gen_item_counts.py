@@ -664,7 +664,7 @@ for obj_name in data.glob(glob_pattern):
         # Feel free to comment this to process base game leg coms.  Using the current
         # algorithm, base-game leg coms take a good hour to process (for all four chars),
         # so we're skipping them by defailt.
-        print('NOTICE: Skipping base-game Legendary COM {}.  Upper bound on count is >130 trillion (US)'.format(obj_name))
+        print('NOTICE: Skipping base-game Legendary COM {} - processing times are quite long'.format(obj_name))
         continue
     else:
         raise Exception('Unknown rarity in {}, {}'.format(obj_name, rarity_lower))
