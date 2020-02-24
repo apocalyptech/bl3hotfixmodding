@@ -658,6 +658,9 @@ for obj_name in data.glob(glob_pattern):
         rarity = '04/Very Rare'
     elif rarity_lower == '05_legendary':
         rarity = '05/Legendary'
+        # Feel free to comment this to process base game leg coms.  Using the current
+        # algorithm, base-game leg coms take a good hour to process (for all four chars),
+        # so we're skipping them by defailt.
         print('NOTICE: Skipping base-game Legendary COM {}.  Upper bound on count is >130 trillion (US)'.format(obj_name))
         continue
     else:
@@ -721,6 +724,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Grenades_BloodyHarvest',
             ]),
         # COM counts take forever, they're massive (thanks mostly to skill tree parts)
+        # Processing will take ~18min or so (so long as the base-game legendaries are
+        # being skipped, as they will be by default)
         #('com_counts.csv', com_balances, 'Character/Name', None, False, []),
         ('artifact_counts.csv', artifact_balances, 'Type/Name', None, False, []),
         ]:
