@@ -5,6 +5,7 @@ import re
 import sys
 import csv
 from bl3data.bl3data import BL3Data
+from bl3hotfixmod.bl3hotfixmod import Balance
 
 data = BL3Data()
 
@@ -544,64 +545,31 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
 
         for manufacturer, gun_type, rarity, bal_name in balances:
 
-            # Load ourselves
-            bal_obj = data.get_data(bal_name)
-            if len(bal_obj) != 1:
-                raise Exception('Unknown export count ({}) for: {}'.format(len(bal_obj), bal_name))
-            last_bit = bal_name.split('/')[-1]
-            bal_data = bal_obj[0]
+            # Grab a Balance object
+            bal = Balance.from_data(data, bal_name)
 
             # Quick check...  Thus far all examples of this also have the manufacturers enumerated in the
             # parts list, so probably we don't need to worry.
-            if len(bal_data['Manufacturers']) > 1:
-                print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal_data['Manufacturers'])))
+            if len(bal.raw_bal_data['Manufacturers']) > 1:
+                print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal.raw_bal_data['Manufacturers'])))
 
-            # First things first -- the *weights* that get used are the ones from the Balance, so read 'em.
-            # We'll use the TOC and assume that it matches the PartSet APLs.  We'll also construct our
-            # partlists from the Balance -- for Weapons, they're mirrored in the PartSet ActorPartLists
-            # structure, but for various item types, they're only really properly enumerated in the Balance.
-            weights = []
-            partlists = []
-            for toc in bal_data['RuntimePartList']['PartTypeTOC']:
-                toc_weights = []
-                partlist = []
-                for part_idx in range(toc['StartIndex'], toc['StartIndex']+toc['NumParts']):
-                    toc_weights.append(data.process_bvc_struct(bal_data['RuntimePartList']['AllParts'][part_idx]['Weight']))
-                    partdata = bal_data['RuntimePartList']['AllParts'][part_idx]['PartData']
-                    if 'export' in partdata:
-                        partlist.append('None')
-                    else:
-                        partlist.append(partdata[1])
-                weights.append(toc_weights)
-                partlists.append(partlist)
-
-            # Load our PartSet
-            partset_name = bal_data['PartSetData'][1]
-            partset_obj = data.get_data(partset_name)
-            if len(partset_obj) != 1:
-                raise Exception('Unknown export count ({}) for: {}'.format(len(partset_obj), partset_name))
-            partset_data = partset_obj[0]
-
-            # Loop through part lists we constructed via the balance, and pull out the extra
-            # information we need from the PartSet APL structure.  We're assuming that the PartSet
-            # APL indicies match the ones from the Balance, which AFAIK should be correct.
+            # Loop through partlists
             seen_labels = set()
-            for apl_idx, partlist in enumerate(partlists):
-                apl = partset_data['ActorPartLists'][apl_idx]
+            for apl_idx, category in enumerate(bal.categories):
 
                 # Looks like we might not be able to trust bEnabled fully in here?
-                #if 'bEnabled' in apl and apl['bEnabled']:
+                #if category.enabled:
                 if True:
 
-                    if apl['bCanSelectMultipleParts']:
-                        parts_min = apl['MultiplePartSelectionRange']['Min']
-                        parts_max = apl['MultiplePartSelectionRange']['Max']
+                    if category.select_multiple:
+                        parts_min = category.num_min
+                        parts_max = category.num_max
                         # Some items (such as the Storm Front grenade) have a bunch of parts defined
-                        # in a multi-select partlist but have Min/Max of 0.  These parts are never
+                        # in a multi-select category but have Min/Max of 0.  These parts are never
                         # actually selected, so ignore 'em.
                         if parts_min == 0 and parts_max == 0:
                             # Turns out there's a few guns too, but those rows were already getting pruned later.
-                            #print('Skipping partlist {} for {}; zero min/max on multi-select'.format(apl_idx, partset_name))
+                            #print('Skipping category {} for {}; zero min/max on multi-select'.format(apl_idx, partset_name))
                             continue
                     else:
                         parts_min = 1
@@ -610,17 +578,10 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
                     processed_parts = []
                     valid_labels = {}
 
-                    # Original lead-in here, when we were pulling parts from the APL itself
-                    #for part_idx, part in enumerate(apl['Parts']):
-                    #
-                    #    # Figure out our part name
-                    #    if 'export' in part['PartData']:
-                    #        part_name = 'None'
-                    #    else:
-                    #        part_name = part['PartData'][1]
+                    for part_idx, part in enumerate(category.partlist):
 
-                    # New lead-in (basically removing that `if`)
-                    for part_idx, part_name in enumerate(partlist):
+                        part_name = part.part_name
+                        weight = data.process_bvc(part.weight)
 
                         # Populate the cache, if we need to
                         if part_name not in part_cache:
@@ -722,7 +683,7 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
 
                         # Read from Cache
                         (excluders, dependencies, inspection_label) = part_cache[part_name]
-                        processed_parts.append((part_name, excluders, dependencies, inspection_label, apl_idx, part_idx))
+                        processed_parts.append((part_name, excluders, dependencies, inspection_label, weight))
                         if inspection_label:
                             if inspection_label in valid_labels:
                                 valid_labels[inspection_label] += 1
@@ -748,11 +709,11 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
 
                     # Hardcoded fixes.  Grr.
                     if contention:
-                        if partset_name == '/Game/Gear/Weapons/Pistols/Torgue/_Shared/_Design/_Unique/Nurf/Balance/PartSet_PS_TOR_Nurf' and apl_idx == 1:
+                        if bal.partset_name == '/Game/Gear/Weapons/Pistols/Torgue/_Shared/_Design/_Unique/Nurf/Balance/PartSet_PS_TOR_Nurf' and apl_idx == 1:
                             # BODY ACCESSORY vs. BARREL ACCESSORY
                             contention = False
                             label_text = 'BODY ACCESSORY'
-                        elif partset_name == '/Game/Gear/Weapons/AssaultRifles/Vladof/_Shared/_Design/_Unique/Ogre/Balance/InvPart_VLA_AR_Ogre' and apl_idx == 10:
+                        elif bal.partset_name == '/Game/Gear/Weapons/AssaultRifles/Vladof/_Shared/_Design/_Unique/Ogre/Balance/InvPart_VLA_AR_Ogre' and apl_idx == 10:
                             # IRON SIGHTS vs. RAIL
                             contention = False
                             label_text = 'RAIL'
@@ -769,7 +730,7 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
                             label_text = '{} {}'.format(label_base, idx)
                         seen_labels.add(label_text)
 
-                    for (part_name, excluders, dependencies, _, apl_idx, part_idx) in processed_parts:
+                    for (part_name, excluders, dependencies, _, weight) in processed_parts:
                         datarow = [manufacturer]
                         if type_col_name:
                             datarow.append(gun_type)
@@ -779,7 +740,7 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
                             label_text,
                             parts_min,
                             parts_max,
-                            weights[apl_idx][part_idx],
+                            weight,
                             part_name.split('/')[-1],
                             ', '.join(sorted([d.split('/')[-1] for d in dependencies])),
                             ', '.join(sorted([e.split('/')[-1] for e in excluders])),
