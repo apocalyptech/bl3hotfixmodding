@@ -11,21 +11,16 @@ from bl3hotfixmod.bl3hotfixmod import Balance
 
 if 'cpython' in platform.python_implementation().lower():
     print("")
-    print("This app is slow, inefficient, and memory hungry.  PyPy3 won't help")
-    print("with the inefficiency or memory-hungriness, but it *will* improve")
-    print("runtimes considerably, by something like 6x.  It's recommended to")
-    print("quit now and re-launch with PyPy3.")
+    print("This app is slow and inefficient.  PyPy3 won't help with the")
+    print("inefficiency, but it *will* improve runtimes considerably, by")
+    print("something like 6x.  It's recommended to quit now and re-launch")
+    print("with PyPy3.")
     print("")
     print("Hit Enter to continue anyway, but don't expect anything fast.")
     print("")
     sys.stdout.write("Ctrl-C to exit, Enter to continue> ")
     sys.stdout.flush()
     sys.stdin.readline()
-
-print('')
-print("WARNING: This app consumes a good 8GB RAM when running, make sure you've")
-print("got at least that much free!")
-print('')
 
 data = BL3Data()
 
@@ -123,6 +118,13 @@ class PartTreeNode(object):
         # Update our leaf count as we go.
         self.leaf_count += sum([child.leaf_count for child in self.children])
 
+        # Memory efficiency!  Hah.  Right.  Anyway, we never recurse back into
+        # these things once they're created, so why not just get rid of 'em?
+        # Honestly we probably shouldn't even bother setting up a children array
+        # in the first place.  I'll leave it in anyway; if we comment this, we'd
+        # be able to poke through the tree if we wanted, for some reason.
+        self.children = None
+
     def _get_constraints(self, part_name):
 
         # Breaking OOO here, ah well.
@@ -133,21 +135,33 @@ class PartTreeNode(object):
             excluders = set()
             dependencies = set()
 
-            part_data = self.data.get_data(part_name)
-            found_export = False
-            for export in part_data:
-                if export['export_type'].startswith('BPInvPart_'):
-                    found_export = True
-                    if 'Excluders' in export:
-                        for excluder in export['Excluders']:
-                            excluders.add(excluder[1])
-                    if 'Dependencies' in export:
-                        for dependency in export['Dependencies']:
-                            dependencies.add(dependency[1])
-                    break
+            if part_name == '/Game/Gear/GrenadeMods/_Design/PartSets/Part_Manufacturer/GM_Part_Manufacturer_06_Pangolin':
+                # We can't serialize this object for some reason.  The uasset files do not include
+                # the strings Excluders or Dependencies, though, so we should be good to leave them
+                # blank here.
+                pass
+            else:
+                part_data = self.data.get_data(part_name)
+                found_export = False
+                for export in part_data:
+                    if export['export_type'].startswith('BPInvPart_'):
+                        found_export = True
+                        if 'Excluders' in export:
+                            for excluder in export['Excluders']:
+                                if 'export' in excluder:
+                                    # WTF is going on here?  So far, this object seems to just reference *itself* in here?
+                                    # /Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback
+                                    # Just gonna print a warning...
+                                    print('WARNING: {} Excluders references itself?'.format(part_name))
+                                else:
+                                    excluders.add(excluder[1])
+                        if 'Dependencies' in export:
+                            for dependency in export['Dependencies']:
+                                dependencies.add(dependency[1])
+                        break
 
-            if not found_export:
-                raise Exception('Could not find export for {}'.format(part_name))
+                if not found_export:
+                    raise Exception('Could not find export for {}'.format(part_name))
 
             part_cache[part_name] = (excluders, dependencies)
 
@@ -500,6 +514,189 @@ for (label, balance_name) in [
 #        ('Linc', '', 'Named Weapon', '/Game/Gear/Weapons/Pistols/Atlas/_Shared/_Design/_Unique/Drill/Balance/Balance_PS_ATL_Drill'),
 #        ]
 
+# Shields
+shield_balances = []
+glob_pattern = '/Game/Gear/Shields/_Design/InvBalance/InvBalD_Shield_*_*_*'
+pat = re.compile(r'^/Game/Gear/Shields/_Design/InvBalance/InvBalD_Shield_(?P<manufacturer>.*?)_(?P<rarity>\d+_.*?)$')
+for obj_name in data.glob(glob_pattern):
+    match = pat.match(obj_name).groupdict()
+    rarity_lower = match['rarity'].lower()
+    if rarity_lower == '01_common':
+        rarity = '01/Common'
+    elif rarity_lower == '02_uncommon':
+        rarity = '02/Uncommon'
+    elif rarity_lower == '03_rare':
+        rarity = '03/Rare'
+    elif rarity_lower == '04_veryrare':
+        rarity = '04/Very Rare'
+    else:
+        raise Exception('Unknown rarity in {}, {}'.format(obj_name, rarity_lower))
+    shield_balances.append((
+        match['manufacturer'],
+        'Shield',
+        rarity,
+        obj_name,
+        ))
+shield_balances.sort()
+for (sname, sobj) in [
+        ("All-in", '/Game/PatchDLC/Dandelion/Gear/Shield/Clover/Balance/InvBalD_Shield_Clover'),
+        ("Back Ham", '/Game/Gear/Shields/_Design/_Uniques/BackHam/Balance/InvBalD_Shield_BackHam'),
+        ("Band of Sitorak", '/Game/Gear/Shields/_Design/_Uniques/Cyttorak/bALANCE/InvBalD_Shield_Cyttorak'),
+        ("Big Boom Blaster", '/Game/Gear/Shields/_Design/_Uniques/BigBoomBlaster/Balance/InvBalD_Shield_LGD_BigBoomBlaster'),
+        ("Black Hole", '/Game/Gear/Shields/_Design/_Uniques/BlackHole/Balance/InvBalD_Shield_LGD_BlackHole'),
+        ("Deluxe Badass Combustor", '/Game/Gear/Shields/_Design/_Uniques/_XPLootBooster/Balance/InvBalD_Shield_XPLootBooster'),
+        ("Double Downer", '/Game/PatchDLC/Dandelion/Gear/Shield/DoubleDowner/Balance/InvBalD_Shield_DoubleDowner'),
+        ("Ember's Blaze", '/Game/PatchDLC/Dandelion/Gear/Shield/Ember/Balance/InvBalD_Shield_Ember'),
+        ("Front Loader", '/Game/Gear/Shields/_Design/_Uniques/FrontLoader/Balance/InvBalD_Shield_LGD_FrontLoader'),
+        ("Frozen Heart", '/Game/Gear/Shields/_Design/_Uniques/Aurelia/Balance/InvBalD_Shield_LGD_Aurelia'),
+        ("Frozen Snowshoe", '/Game/PatchDLC/Raid1/Gear/Shields/_HybridLegendary/SlideKickHybrid/SlideKick_FrozenHeart/Balance/InvBalD_Shield_SlideKickFrozenHeart'),
+        ("Golden Touch", '/Game/Gear/Shields/_Design/_Uniques/GoldenTouch/Balance/InvBalD_Shield_GoldenTouch'),
+        ("Impaler", '/Game/Gear/Shields/_Design/_Uniques/Impaler/Balance/InvBalD_Shield_LGD_Impaler'),
+        ("Loop of 4N631", '/Game/Gear/Shields/_Design/_Uniques/LoopOf4N631/Balance/InvBalD_Shield_HYP_LoopOf4N631'),
+        ("MSRC Auto-Dispensary", '/Game/Gear/Shields/_Design/_Uniques/Dispensary/Balance/InvBalD_Shield_LGD_Dispensary'),
+        ("Mendel's Multivitamin Shield", '/Game/Gear/Shields/_Design/_Uniques/BuriedAlive/Balance/InvBalD_Shield_BuriedAlive'),
+        ("Messy Breakup", '/Game/Gear/Shields/_Design/_Uniques/MessyBreakup/bALANCE/InvBalD_Shield_MessyBreakup'),
+        ("Moxxi's Embrace", '/Game/Gear/Shields/_Design/_Uniques/MoxxisEmbrace/Balance/InvBalD_Shield_MoxxisEmbrace'),
+        ("Mr Caffeine", '/Game/Gear/Shields/_Design/_Uniques/MrCaffeine/Balance/InvBalD_Shield_PAN_MrCaffeine'),
+        ("Nova Berner", '/Game/Gear/Shields/_Design/_Uniques/NovaBurner/Balance/InvBalD_Shield_LGD_NovaBurner'),
+        ("Re-Charger Berner", '/Game/PatchDLC/Raid1/Gear/Shields/_HybridLegendary/SlideKickHybrid/ReCharger_Berner/InvBalD_Shield_LGD_ReCharger_Berner'),
+        ("Re-Charger", '/Game/Gear/Shields/_Design/_Uniques/Re-Charger/Balance/InvBalD_Shield_LGD_ReCharger'),
+        ("Re-Router", '/Game/Gear/Shields/_Design/_Uniques/Vamp/Balance/InvBalD_Shield_Legendary_Vamp'),
+        ("Rectifier", '/Game/Gear/Shields/_Design/_Uniques/Rectifier/Balance/InvBalD_Shield_LGD_Rectifier'),
+        ("Red Card Re-Charger", '/Game/PatchDLC/Raid1/Gear/Shields/_HybridLegendary/SlideKickHybrid/SlideKick_Recharger/InvBalD_Shield_SlideKickRecharger'),
+        ("Red Card", '/Game/Gear/Shields/_Design/_Uniques/SlideKick/Balance/InvBalD_Shield_LGD_SlideKick'),
+        ("Red Suit", '/Game/Gear/Shields/_Design/_Uniques/Radiate/Balance/InvBalD_Shield_LGD_Radiate'),
+        ("Revengenader", '/Game/Gear/Shields/_Design/_Uniques/Revengenader/Balance/InvBalD_Shield_LGD_Revengenader'),
+        ("Rico", '/Game/PatchDLC/Dandelion/Gear/Shield/Rico/Balance/InvBalD_Shield_Rico'),
+        ("Rough Rider", '/Game/Gear/Shields/_Design/_Uniques/RoughRider/Balance/InvBalD_Shield_LGD_RoughRider'),
+        ("Scream of Terror", '/Game/PatchDLC/BloodyHarvest/Gear/Shields/_Design/_Unique/ScreamOfPain/Balance/InvBalD_Shield_ScreamOfTerror'),
+        ("Shooting Star", '/Game/Gear/Shields/_Design/_Uniques/ShootingStar/Balance/InvBalD_Shield_LGD_ShootingStar'),
+        ("Stop-Gap", '/Game/Gear/Shields/_Design/_Uniques/StopGap/Balance/InvBalD_Shield_LGD_StopGap'),
+        ("The Transformer", '/Game/Gear/Shields/_Design/_Uniques/Transformer/Balance/InvBalD_Shield_LGD_Transformer'),
+        ("Unpaler", '/Game/Gear/Shields/_Design/_Uniques/Unpaler/Balance/InvBalD_Shield_LGD_Unpaler'),
+        ("Version 0.m", '/Game/PatchDLC/Raid1/Gear/Shields/VersionOmNom/Balance/InvBalD_Shield_Legendary_VersionOmNom'),
+        ("Ward", '/Game/Gear/Shields/_Design/_Uniques/Ward/Balance/InvBalD_Shield_Ward'),
+        ("Whiskey Tango Foxtrot", '/Game/Gear/Shields/_Design/_Uniques/WhiskeyTangoFoxtrot/Balance/InvBalD_Shield_Legendary_WhiskeyTangoFoxtrot'),
+        ]:
+    shield_balances.append((sname, 'Shield', 'Named Shield', sobj))
+
+# Grenades
+grenade_balances = []
+glob_pattern = '/Game/Gear/GrenadeMods/_Design/InvBalance/InvBalD_GrenadeMod_*_*_*'
+pat = re.compile(r'^/Game/Gear/GrenadeMods/_Design/InvBalance/InvBalD_GrenadeMod_(?P<manufacturer>.*?)_(?P<rarity>\d+_.*?)$')
+for obj_name in data.glob(glob_pattern):
+    match = pat.match(obj_name).groupdict()
+    rarity_lower = match['rarity'].lower()
+    if rarity_lower == '01_common':
+        rarity = '01/Common'
+    elif rarity_lower == '02_uncommon':
+        rarity = '02/Uncommon'
+    elif rarity_lower == '03_rare':
+        rarity = '03/Rare'
+    elif rarity_lower == '04_veryrare':
+        rarity = '04/Very Rare'
+    else:
+        raise Exception('Unknown rarity in {}, {}'.format(obj_name, rarity_lower))
+    grenade_balances.append((
+        match['manufacturer'],
+        'Grenade',
+        rarity,
+        obj_name,
+        ))
+grenade_balances.sort()
+for (gname, gobj) in [
+        ("Acid Burn", '/Game/PatchDLC/Dandelion/Gear/Grenade/AcidBurn/Balance/InvBalD_GM_AcidBurn'),
+        ("Burning Summit", '/Game/Gear/GrenadeMods/_Design/_Unique/Summit/Balance/InvBalD_GM_Summit'),
+        ("Chocolate Thunder", '/Game/Gear/GrenadeMods/_Design/_Unique/JustDeserts/Balance/InvBalD_GM_JustDeserts'),
+        ("Chupa's Organ", '/Game/Gear/GrenadeMods/_Design/_Unique/Chupa/Balance/InvBalD_GM_Chupa'),
+        ("Diamond Butt Bomb", '/Game/Gear/GrenadeMods/_Design/_Unique/ButtStallion/Balance/InvBalD_GM_ButtStallion'),
+        ("ECHO-2", '/Game/Gear/GrenadeMods/_Design/_Unique/EchoV2/Balance/InvBalD_GM_EchoV2'),
+        ("EMP", '/Game/Gear/GrenadeMods/_Design/_Unique/EMP/Balance/InvBalD_GM_EMP'),
+        ("Elemental Persistent Contact Grenade", '/Game/Gear/GrenadeMods/_Design/_Unique/Mogwai/Balance/InvBalD_GM_Mogwai'),
+        ("Epicenter", '/Game/Gear/GrenadeMods/_Design/_Unique/Epicenter/Balance/InvBalD_GM_Epicenter'),
+        ("Exterminator", '/Game/Gear/GrenadeMods/_Design/_Unique/BirthdaySuprise/Balance/InvBalD_GM_BirthdaySuprise'),
+        ("Fastball", '/Game/Gear/GrenadeMods/_Design/_Unique/Fastball/Balance/InvBalD_GM_TED_Fastball'),
+        ("Firestorm", '/Game/Gear/GrenadeMods/_Design/_Unique/FireStorm/Balance/InvBalD_GM_VLA_FireStorm'),
+        ("Fungus Among Us", '/Game/Gear/GrenadeMods/_Design/_Unique/Mushroom/Balance/InvBalD_GM_Shroom'),
+        ("Ghast Call", '/Game/PatchDLC/BloodyHarvest/Gear/GrenadeMods/_Design/_Unique/FontOfDarkness/Balance/InvBalD_GM_TOR_FontOfDarkness'),
+        ("Hex", '/Game/Gear/GrenadeMods/_Design/_Unique/Seeker/Balance/InvBalD_GM_Seeker'),
+        ("Hunter-Seeker", '/Game/Gear/GrenadeMods/_Design/_Unique/HunterSeeker/Balance/InvBalD_GM_HunterSeeker'),
+        ("It's Piss", '/Game/Gear/GrenadeMods/_Design/_Unique/Piss/Balance/InvBalD_GM_Piss'),
+        ("Kryll", '/Game/Gear/GrenadeMods/_Design/_Unique/Kryll/Balance/InvBalD_GM_Kryll'),
+        ("Moxxi's Bouncing Pair", '/Game/Gear/GrenadeMods/_Design/_Unique/MoxiesBosom/Balance/InvBalD_GM_PAN_MoxiesBosom'),
+        ("NOG Potion #9", '/Game/Gear/GrenadeMods/_Design/_Unique/WizardOfNOG/Balance/InvBalD_GM_WizardOfNOG'),
+        ("Nagata", '/Game/Gear/GrenadeMods/_Design/_Unique/Nagate/Balance/InvBalD_GM_Nagate'),
+        ("Porcelain Pipe Bomb", '/Game/Gear/GrenadeMods/_Design/_Unique/ToiletBombs/Balance/InvBalD_GM_TOR_ToiletBombs'),
+        ("Quasar", '/Game/Gear/GrenadeMods/_Design/_Unique/Quasar/Balance/InvBalD_GM_Quasar'),
+        ("Red Queen", '/Game/Gear/GrenadeMods/_Design/_Unique/RedQueen/Balance/InvBalD_GM_RedQueen'),
+        ("Rubber Cheddar Shredder", '/Game/Gear/GrenadeMods/_Design/_Unique/CashMoneyPreorder/Balance/InvBalD_GM_CashMoneyPreorder'),
+        ("Slider", '/Game/PatchDLC/Dandelion/Gear/Grenade/Slider/Balance/InvBalD_GM_TED_Slider'),
+        ("Storm Front", '/Game/Gear/GrenadeMods/_Design/_Unique/StormFront/Balance/InvBalD_GM_StormFront'),
+        ("Surge", '/Game/Gear/GrenadeMods/_Design/_Unique/Surge/Balance/InvBalD_GM_Surge'),
+        ("Tina's Hippity Hopper", '/Game/Gear/GrenadeMods/_Design/_Unique/HipHop/Balance/InvBalD_GM_TOR_HipHop'),
+        ("Tran-fusion", '/Game/Gear/GrenadeMods/_Design/_Unique/TranFusion/Balance/InvBalD_GM_TranFusion'),
+        ("Ultraball", '/Game/Gear/GrenadeMods/_Design/_Unique/ToyGrenade/Balance/InvBalD_GM_ToyGrenade'),
+        ("Whispering Ice", '/Game/Gear/GrenadeMods/_Design/_Unique/ObviousTrap/Balance/InvBalD_GM_ObviousTrap'),
+        ("Widowmaker", '/Game/Gear/GrenadeMods/_Design/_Unique/WidowMaker/Balance/InvBalD_GM_WidowMaker'),
+        ]:
+    grenade_balances.append((gname, 'Grenade', 'Named Grenade', gobj))
+
+# COMs
+com_balances = []
+glob_pattern = '/Game/Gear/ClassMods/_Design/BalanceDefs/InvBalD_ClassMod_*_*_*'
+pat = re.compile(r'^/Game/Gear/ClassMods/_Design/BalanceDefs/InvBalD_ClassMod_(?P<character>.*?)_(?P<rarity>\d+_.*?)$')
+for obj_name in data.glob(glob_pattern):
+    match = pat.match(obj_name).groupdict()
+    rarity_lower = match['rarity'].lower()
+    if rarity_lower == '01_common':
+        rarity = '01/Common'
+    elif rarity_lower == '02_uncommon':
+        rarity = '02/Uncommon'
+    elif rarity_lower == '03_rare':
+        rarity = '03/Rare'
+    elif rarity_lower == '04_veryrare':
+        rarity = '04/Very Rare'
+    elif rarity_lower == '05_legendary':
+        rarity = '05/Legendary'
+        print('NOTICE: Skipping base-game Legendary COM {}.  Upper bound on count is >130 trillion (US)'.format(obj_name))
+        continue
+    else:
+        raise Exception('Unknown rarity in {}, {}'.format(obj_name, rarity_lower))
+    com_balances.append((
+        match['character'],
+        'COM',
+        rarity,
+        obj_name,
+        ))
+for (cname, cobj) in [
+        ("Beastmaster - R4kk P4k", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_Raid1'),
+        ("Beastmaster - St4ckbot", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_DLC1'),
+        ("Gunner - Green Monster", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/GUN/InvBalD_CM_Gunner_DLC1'),
+        ("Gunner - Raging Bear", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/GUN/InvBalD_CM_Gunner_Raid1'),
+        ("Operative - Antifreeze", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/OPE/InvBalD_CM_Operative_Raid1'),
+        ("Operative - Seein' Dead", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/OPE/InvBalD_CM_Operative_DLC1'),
+        ("Siren - Golden Rule", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/SRN/InvBalD_CM_Siren_DLC1'),
+        ("Siren - Spiritual Driver", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/SRN/InvBalD_CM_Siren_Raid1'),
+        ]:
+    com_balances.append((cname, 'COM', '05/Legendary', cobj))
+com_balances.sort()
+
+# Artifacts
+artifact_balances = [
+        ('Common', 'Artifact', '01/Common', '/Game/Gear/Artifacts/_Design/BalanceDefs/InvBalD_Artifact_01_Common'),
+        ('Uncommon', 'Artifact', '02/Uncommon', '/Game/Gear/Artifacts/_Design/BalanceDefs/InvBalD_Artifact_02_Uncommon'),
+        ('Rare', 'Artifact', '03/Rare', '/Game/Gear/Artifacts/_Design/BalanceDefs/InvBalD_Artifact_03_Rare'),
+        ('Very Rare', 'Artifact', '04/Very Rare', '/Game/Gear/Artifacts/_Design/BalanceDefs/InvBalD_Artifact_04_VeryRare'),
+        ('Legendary', 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/BalanceDefs/InvBalD_Artifact_05_Legendary'),
+        # Not bothering to do anything fancy here since there's so few.
+        ("Electric Banjo", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/ElectricBanjo/Balance/InvBalD_Artifact_ElectricBanjo'),
+        ("Grave", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/Grave/Balance/InvBalD_Artifact_Grave'),
+        ("Phoenix Tears", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/PhoenixTears/Balance/InvBalD_Artifact_PhoenixTears'),
+        ("Road Warrior", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/RoadWarrior/Balance/InvBalD_Artifact_RoadWarrior'),
+        ("Unleash the Dragon", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/ElDragonJr/Balance/InvBalD_Artifact_ElDragonJr'),
+        ("Vault Hunter's Relic", 'Artifact', '05/Legendary', '/Game/Gear/Artifacts/_Design/PartSets/Abilities/_Unique/VaultHunterRelic/Balance/InvBalD_Artifact_Relic'),
+        ]
+
 # Loop through
 for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansions) in [
         ('gun_counts.csv', gun_balances, 'Manufacturer/Name', 'Gun Type', True, [
@@ -509,6 +706,23 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             # Adds a bunch, but only conditionally during Bloody Harvest, so ignore it.
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_BloodyHarvest',
             ]),
+        ('shield_counts.csv', shield_balances, 'Manufacturer/Name', None, True, [
+            '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Shields_Raid1',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Shields_Dandelion',
+            # Adds a few, but only conditionally during Bloody Harvest, so ignore it.
+            #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Shields_BloodyHarvest',
+            ]),
+        ('grenade_counts.csv', grenade_balances, 'Manufacturer/Name', None, True, [
+            '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Raid1',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Dandelion',
+            # Adds a few, but only conditionally during Bloody Harvest, so ignore it.
+            #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Grenades_BloodyHarvest',
+            ]),
+        # COM counts take forever, they're massive (thanks mostly to skill tree parts)
+        #('com_counts.csv', com_balances, 'Character/Name', None, False, []),
+        ('artifact_counts.csv', artifact_balances, 'Type/Name', None, False, []),
         ]:
 
     # Create a struct which defines how many extra anointments, beyond the ones already
@@ -538,8 +752,9 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             for bal_collection in bal_collections:
                 # Ditto re: errors
                 collection = data.get_exports(bal_collection, 'InventoryBalanceCollectionData')[0]
-                for bal in collection['InventoryBalanceList']:
-                    bal_set.add(bal['asset_path_name'].split('.')[0])
+                if 'InventoryBalanceList' in collection:
+                    for bal in collection['InventoryBalanceList']:
+                        bal_set.add(bal['asset_path_name'].split('.')[0])
 
             # Now loop through and add in extra parts.
             for bal_name in bal_set:
