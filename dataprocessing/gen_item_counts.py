@@ -203,7 +203,7 @@ class BalanceTree(object):
             return self.tree.leaf_count
 
 # Balances to loop through
-balances = []
+gun_balances = []
 
 # Some text massaging
 transforms = {
@@ -271,7 +271,7 @@ for glob_pattern, re_pattern in [
                 raise Exception('Unknown rarity in {}'.format(obj_name))
 
         # Now add it to our list
-        balances.append((
+        gun_balances.append((
             transforms.get(match['manufacturer'].lower(), default=match['manufacturer']),
             transforms.get(match['guntype'].lower(), default=match['guntype']),
             rarity,
@@ -279,7 +279,7 @@ for glob_pattern, re_pattern in [
             ))
 
 # Sort the list so far
-balances.sort()
+gun_balances.sort()
 
 # Uniques /  Legendaries
 for (label, balance_name) in [
@@ -486,104 +486,127 @@ for (label, balance_name) in [
         ("XZ41", '/Game/Gear/Weapons/SMGs/Hyperion/_Shared/_Design/_Unique/XZ/Balance/Balance_SM_HYP_XZ'),
         ("Zheitsev's Eruption", '/Game/PatchDLC/Raid1/Re-Engagement/Weapons/ZheitsevEruption/Balance/Balance_AR_COV_Zheitsev'),
         ]:
-    balances.append((
+    gun_balances.append((
         label,
         '',
         'Named Weapon',
         balance_name,
         ))
 
-# Create a struct which defines how many extra anointments, beyond the ones already
-# defined, that various balances will receive from part expansions (so far there's
-# only been one "permanent" addition to this, added w/ Maliwan Takedown)
-anointment_additions = {}
-for expansion_obj in [
-        '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Raid1',
-        # Adds nothing, don't bother
-        #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Dandelion',
-        # Adds a bunch, but only conditionally during Bloody Harvest, so ignore it.
-        #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_BloodyHarvest',
-        ]:
-    # Don't bother error checking on this, just do it.
-    exp = data.get_exports(expansion_obj, 'InventoryGenericPartExpansionData')[0]
-    num_parts = len(exp['GenericParts']['Parts'])
-
-    # Grab a list of balance collections which define the gear this expansion will act on.
-    # We need to use the refs database to find out what's using the main one as a
-    # ParentCollection.
-    bal_collections = [exp['InventoryBalanceCollection'][1]]
-    for (extra, extra_data) in data.get_refs_to_data(bal_collections[0]):
-        if extra_data \
-                and extra_data[0]['export_type'] == 'InventoryBalanceCollectionData' \
-                and extra_data[0]['ParentCollection'][1] == bal_collections[0]:
-            bal_collections.append(extra)
-
-    # Create a set() of balances which apply; we have one current example (the AutoAimè)
-    # which is specified more than once (inside the same collection, no less), so this
-    # way we'll avoid processing them more than once per anointment expansion.
-    bal_set = set()
-    for bal_collection in bal_collections:
-        # Ditto re: errors
-        collection = data.get_exports(bal_collection, 'InventoryBalanceCollectionData')[0]
-        for bal in collection['InventoryBalanceList']:
-            bal_set.add(bal['asset_path_name'].split('.')[0])
-
-    # Now loop through and add in extra parts.
-    for bal_name in bal_set:
-        if bal_name in anointment_additions:
-            anointment_additions[bal_name] += num_parts
-        else:
-            anointment_additions[bal_name] = num_parts
-
 # Hardcodes in case you want to run a subset.
-#balances = [
+#gun_balances = [
 #        #('Auto', '', 'Named Weapon', '/Game/PatchDLC/Dandelion/Gear/Weapon/_Unique/AutoAime/Balance/Balance_SR_DAL_AutoAime'),
 #        #('Hyper-Hydrator', '', 'Named Weapon', '/Game/Gear/Weapons/Pistols/Maliwan/_Shared/_Design/_Unique/HyperHydrator/Balance/Balance_PS_MAL_HyperHydrator'),
 #        ('Linc', '', 'Named Weapon', '/Game/Gear/Weapons/Pistols/Atlas/_Shared/_Design/_Unique/Drill/Balance/Balance_PS_ATL_Drill'),
 #        ]
 
 # Loop through
-total_count = 0
-total_count_anoint = 0
-with open('gun_counts.csv', 'w') as odf:
+for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansions) in [
+        ('gun_counts.csv', gun_balances, 'Manufacturer/Name', 'Gun Type', True, [
+            '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Raid1',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Dandelion',
+            # Adds a bunch, but only conditionally during Bloody Harvest, so ignore it.
+            #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_BloodyHarvest',
+            ]),
+        ]:
 
-    writer = csv.writer(odf)
-    writer.writerow([
-        'Manufacturer',
-        'Gun Type',
-        'Rarity',
-        'Balance',
-        'Count',
-        'Count With Anoints',
-        ])
+    # Create a struct which defines how many extra anointments, beyond the ones already
+    # defined, that various balances will receive from part expansions (so far there's
+    # only been one "permanent" addition to this, added w/ Maliwan Takedown)
+    anointment_additions = {}
+    if do_anoints and anoint_expansions:
+        for expansion_obj in anoint_expansions:
+            # Don't bother error checking on this, just do it.
+            exp = data.get_exports(expansion_obj, 'InventoryGenericPartExpansionData')[0]
+            num_parts = len(exp['GenericParts']['Parts'])
 
-    for manufacturer, gun_type, rarity, obj_name in balances:
+            # Grab a list of balance collections which define the gear this expansion will act on.
+            # We need to use the refs database to find out what's using the main one as a
+            # ParentCollection.
+            bal_collections = [exp['InventoryBalanceCollection'][1]]
+            for (extra, extra_data) in data.get_refs_to_data(bal_collections[0]):
+                if extra_data \
+                        and extra_data[0]['export_type'] == 'InventoryBalanceCollectionData' \
+                        and extra_data[0]['ParentCollection'][1] == bal_collections[0]:
+                    bal_collections.append(extra)
 
-        print('Processing {} {} {} ({})'.format(manufacturer, gun_type, rarity, obj_name))
-        bal = BalanceTree(obj_name, data)
-        total_count += bal.gun_count()
-        total_count_anoint += bal.gun_count(anointment_additions)
+            # Create a set() of balances which apply; we have one current example (the AutoAimè)
+            # which is specified more than once (inside the same collection, no less), so this
+            # way we'll avoid processing them more than once per anointment expansion.
+            bal_set = set()
+            for bal_collection in bal_collections:
+                # Ditto re: errors
+                collection = data.get_exports(bal_collection, 'InventoryBalanceCollectionData')[0]
+                for bal in collection['InventoryBalanceList']:
+                    bal_set.add(bal['asset_path_name'].split('.')[0])
 
-        print('  -> {} ({} with anoints)'.format(bal.gun_count(), bal.gun_count(anointment_additions)))
-        writer.writerow([
-            manufacturer,
-            gun_type,
-            rarity,
-            obj_name,
-            bal.gun_count(),
-            bal.gun_count(anointment_additions),
+            # Now loop through and add in extra parts.
+            for bal_name in bal_set:
+                if bal_name in anointment_additions:
+                    anointment_additions[bal_name] += num_parts
+                else:
+                    anointment_additions[bal_name] = num_parts
+
+    # Now start processing
+    total_count = 0
+    total_count_anoint = 0
+    print('Processing {}'.format(filename))
+    with open(filename, 'w') as odf:
+
+        writer = csv.writer(odf)
+        header = [man_col_name]
+        if type_col_name:
+            header.append(type_col_name)
+        header.extend([
+            'Rarity',
+            'Balance',
+            'Count',
             ])
+        if do_anoints:
+            header.append('Count With Anoints')
+        writer.writerow(header)
 
-        bal = None
+        for manufacturer, gun_type, rarity, obj_name in balances:
 
-    writer.writerow([
-        'Total',
-        '',
-        '',
-        '',
-        total_count,
-        total_count_anoint,
-        ])
-    print('')
-    print('Total: {} ({} with anoints)'.format(total_count, total_count_anoint))
+            print('Processing {} {} {} ({})'.format(manufacturer, gun_type, rarity, obj_name))
+            bal = BalanceTree(obj_name, data)
+            total_count += bal.gun_count()
+            if do_anoints:
+                total_count_anoint += bal.gun_count(anointment_additions)
+                print('  -> {} ({} with anoints)'.format(bal.gun_count(), bal.gun_count(anointment_additions)))
+            else:
+                print('  -> {}'.format(bal.gun_count()))
+
+            datarow = [manufacturer]
+            if type_col_name:
+                datarow.append(gun_type)
+            datarow.extend([
+                rarity,
+                obj_name,
+                bal.gun_count(),
+                ])
+            if do_anoints:
+                datarow.append(bal.gun_count(anointment_additions))
+            writer.writerow(datarow)
+
+            bal = None
+
+        footer_row = ['Total']
+        if type_col_name:
+            footer_row.append('')
+        footer_row.extend([
+            '',
+            '',
+            total_count,
+            ])
+        if do_anoints:
+            footer_row.append(total_count_anoint)
+        writer.writerow(footer_row)
+        print('')
+        if do_anoints:
+            print('Total: {} ({} with anoints)'.format(total_count, total_count_anoint))
+        else:
+            print('Total: {}'.format(total_count))
+        print('...done!')
 
