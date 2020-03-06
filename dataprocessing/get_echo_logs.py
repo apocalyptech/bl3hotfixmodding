@@ -4,7 +4,7 @@
 import re
 import sys
 from bl3data.bl3data import BL3Data
-from bl3hotfixmod.bl3hotfixmod import LVL_TO_ENG
+from bl3hotfixmod.bl3hotfixmod import LVL_TO_ENG_LOWER
 
 # Just getting a list of ECHO logs so I could compare to see if I'd gotten
 # all of them.
@@ -57,13 +57,13 @@ for (obj_name, obj) in objects_rando:
     if lvl_name_base in level_transforms:
         lvl_name_base = level_transforms[lvl_name_base]
     lvl_name = '{}_p'.format(lvl_name_base)
-    if lvl_name not in LVL_TO_ENG:
+    if lvl_name not in LVL_TO_ENG_LOWER:
         raise Exception('No level mapping: {} ({})'.format(lvl_name, obj_name))
 
     name = obj[0]['InventoryName']['string']
     if obj_name in name_additions:
         name = '{} {}'.format(name, name_additions[obj_name])
-    echoes.append((name, LVL_TO_ENG[lvl_name]))
+    echoes.append((name, LVL_TO_ENG_LOWER[lvl_name]))
 
 # Loop through Missions
 #for (obj_name, obj) in objects_mission:
