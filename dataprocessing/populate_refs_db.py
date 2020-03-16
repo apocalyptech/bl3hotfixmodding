@@ -146,7 +146,7 @@ for (dirpath, dirnames, filenames) in os.walk('extracted'):
             # Commit any changes and report, if need be
             obj_count += 1
             if obj_count % 100 == 0:
-                print('Processed {} objects (of ~125100, post-broken-hearts-event (152488 in DB))...'.format(obj_count))
+                print('Processed {} objects (of ~125300, post-steam-release (152764 in DB))...'.format(obj_count))
                 db.commit()
 
 # Ensure that we've committed
@@ -167,6 +167,11 @@ for obj_name in sorted(blacklist_to):
     else:
         print('WARNING: could not find blacklisted {}'.format(obj_name))
 db.commit()
+
+# Report on the number of records in the DB
+curs.execute('select count(name) as name_count from bl3object')
+row = curs.fetchone()
+print('New records in DB: {}'.format(row[0]))
 
 # And close
 db.close()
