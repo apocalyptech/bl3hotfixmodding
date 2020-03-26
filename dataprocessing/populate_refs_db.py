@@ -4,6 +4,7 @@
 import os
 import io
 import sys
+import time
 import struct
 import MySQLdb
 import subprocess
@@ -49,6 +50,9 @@ data = BL3Data()
 data._connect_db()
 db = data.db
 curs = data.curs
+
+# Let's time this
+start_time = time.time()
 
 # Go ahead and auto-truncate first
 print('Truncating database...')
@@ -146,7 +150,7 @@ for (dirpath, dirnames, filenames) in os.walk('extracted'):
             # Commit any changes and report, if need be
             obj_count += 1
             if obj_count % 100 == 0:
-                print('Processed {} objects (of ~125300, post-steam-release (152764 in DB))...'.format(obj_count))
+                print('Processed {} objects (of ~129000, after DLC2 pre-patch (157160 in DB))...'.format(obj_count))
                 db.commit()
 
 # Ensure that we've committed
@@ -175,4 +179,9 @@ print('New records in DB: {}'.format(row[0]))
 
 # And close
 db.close()
-print('Done!')
+end_time = time.time()
+elapsed = int(end_time-start_time)
+mins = int(elapsed/60)
+secs = elapsed % 60
+print('Finished in {}m{}s'.format(mins, secs))
+
