@@ -51,7 +51,9 @@ data._connect_db()
 db = data.db
 curs = data.curs
 
-# Let's time this
+# Let's time this.  Obviously the ETA comparison will vary if you're not
+# on my machine.
+estimated_secs = 673
 start_time = time.time()
 
 # Go ahead and auto-truncate first
@@ -150,7 +152,16 @@ for (dirpath, dirnames, filenames) in os.walk('extracted'):
             # Commit any changes and report, if need be
             obj_count += 1
             if obj_count % 100 == 0:
-                print('Processed {} objects (of ~129000, after DLC2 pre-patch (157160 in DB))...'.format(obj_count))
+                cur_time = time.time()
+                elapsed = int(cur_time-start_time)
+                remaining = estimated_secs - elapsed
+                if remaining >= 0:
+                    mins = int(elapsed/60)
+                    secs = elapsed % 60
+                    eta = '{}m{}s remaining'.format(mins, secs)
+                else:
+                    eta = '---- remaining'
+                print('Processed {} objects (of ~140200, post-dlc2 (168985 in DB)) | {}...'.format(obj_count, eta))
                 db.commit()
 
 # Ensure that we've committed
@@ -183,5 +194,5 @@ end_time = time.time()
 elapsed = int(end_time-start_time)
 mins = int(elapsed/60)
 secs = elapsed % 60
-print('Finished in {}m{}s'.format(mins, secs))
+print('Finished in {}m{}s ({} seconds)'.format(mins, secs, elapsed))
 
