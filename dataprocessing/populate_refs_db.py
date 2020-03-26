@@ -156,8 +156,8 @@ for (dirpath, dirnames, filenames) in os.walk('extracted'):
                 elapsed = int(cur_time-start_time)
                 remaining = estimated_secs - elapsed
                 if remaining >= 0:
-                    mins = int(elapsed/60)
-                    secs = elapsed % 60
+                    mins = int(remaining/60)
+                    secs = remaining % 60
                     eta = '{}m{}s remaining'.format(mins, secs)
                 else:
                     eta = '---- remaining'
