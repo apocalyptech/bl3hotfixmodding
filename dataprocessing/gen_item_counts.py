@@ -711,6 +711,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Dandelion',
             # Adds a bunch, but only conditionally during Bloody Harvest, so ignore it.
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_BloodyHarvest',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Hibiscus',
             ]),
         ('shield_counts.csv', shield_balances, 'Manufacturer/Name', None, True, [
             '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Shields_Raid1',
@@ -718,6 +720,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Shields_Dandelion',
             # Adds a few, but only conditionally during Bloody Harvest, so ignore it.
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Shields_BloodyHarvest',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Shields_Hibiscus',
             ]),
         ('grenade_counts.csv', grenade_balances, 'Manufacturer/Name', None, True, [
             '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Raid1',
@@ -725,6 +729,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/Dandelion/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Dandelion',
             # Adds a few, but only conditionally during Bloody Harvest, so ignore it.
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Grenades_BloodyHarvest',
+            # Adds nothing, don't bother
+            #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Hibiscus',
             ]),
         # COM counts take forever, they're massive (thanks mostly to skill tree parts)
         # Processing will take ~18min or so (so long as the base-game legendaries are
