@@ -39,7 +39,7 @@ balance_names = [
         #'/Game/PatchDLC/Hibiscus/Gear/Weapon/_Unique/Skullmasher/Balance/Balance_SR_JAK_Skullmasher',
         #'/Game/PatchDLC/Hibiscus/Gear/Weapon/_Unique/UnseenThreat/Balance/Balance_SR_JAK_UnseenThreat',
         ]
-#balance_names = [sys.argv[1]]
+balance_names = [sys.argv[1]]
 
 data = BL3Data()
 
