@@ -24,6 +24,9 @@ RD='RD'
 
 mission_data = list(bl3data.find_data('/Game/Missions', 'Mission_'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Dandelion/Missions', 'Mission_'))
+mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'EP0'))
+mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'Mission_'))
+mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'SideMission_'))
 
 written = 0
 out_file = 'mission_rewards_output.txt'
@@ -48,7 +51,12 @@ with open(out_file, 'w') as df:
                                 for item_idx, item in enumerate(pool_part['BalancedItems']):
                                     item_name = None
                                     if 'export' in item['ItemPoolData']:
-                                        item_name = item['ResolvedInventoryBalanceData'][1]
+                                        if 'export' in item['ResolvedInventoryBalanceData']:
+                                            print('WARNING: no pool or balance found in idx {} of {}'.format(item_idx, reward_pool))
+                                            print('')
+                                            continue
+                                        else:
+                                            item_name = item['ResolvedInventoryBalanceData'][1]
                                     else:
                                         item_name = item['ItemPoolData'][1]
                                     pool_contents.append(item_name)
