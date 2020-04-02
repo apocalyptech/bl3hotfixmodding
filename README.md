@@ -1,7 +1,7 @@
 Borderlands 3 Hotfix-Based Modding
 ==================================
 
-There is no traditional modding in BL3 (as of February 18, 2019) like there
+There is no traditional modding in BL3 (as of April 2, 2020) like there
 is for BL2/TPS.  In the meantime, though, while that's being figured out,
 there is *technically* a method which could be used by enterprising and
 technically savvy would-be modders: intercepting the GBX-provided
