@@ -94,7 +94,7 @@ level_to_eng = {
         'Trashtown_P': "Compactor",
 
         # DLC2
-        'Archives_P': "Dustbound Archives",
+        'Archive_P': "Dustbound Archives",
         'Bar_P': "Lodge",
         'Camp_P': "Negul Neshai",
         'Lake_P': "Skittermaw Basin",
