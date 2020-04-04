@@ -15,6 +15,7 @@ data = BL3Data()
 globs_rando = [
         '/Game/InteractiveObjects/EchoLog_NonMission/Data/EchoLogData/EchoLogData_*',
         '/Game/PatchDLC/Dandelion/InteractiveObjects/EchoLogs/DataAssets/EchoLogData_*',
+        '/Game/PatchDLC/Hibiscus/InteractiveObjects/EchoLogs/DataAssets/EchoLogData_*',
         ]
 objects_rando = []
 for glob in globs_rando:
@@ -25,6 +26,7 @@ for glob in globs_rando:
 #globs_mission = [
 #        '/Game/Missions/*/*/*/*/EchoLogData_*',
 #        '/Game/PatchDLC/Dandelion/Missions/*/*/EchoLogData_*',
+#        '/Game/PatchDLC/Hibiscus/InteractiveObjects/MissionEchoLogs/DataAssets/EchoLogData_*',
 #        ]
 #objects_mission = []
 #for glob in globs_mission:
@@ -35,6 +37,7 @@ level_transforms = {
         'sanctuary': 'sanctuary3',
         'casino': 'casinointro',
         'tower': 'towerlair',
+        'archives': 'archive',
         }
 
 # There are a few ECHOs which we find this way which legit cannot
