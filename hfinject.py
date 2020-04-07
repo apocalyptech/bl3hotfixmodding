@@ -57,6 +57,16 @@ class InjectHotfix:
         print('Set {} mod(s) to load'.format(len(self.to_load)))
 
     def process_mod(self, pathname):
+
+        # Make sure the mod file exists, and fail gracefully rather than allowing
+        # an exception
+        if not os.path.exists(pathname):
+            if pathname in self.mtimes:
+                del self.mtimes[pathname]
+            print('WARNING: {} not found'.format(pathname))
+            return []
+
+        # Now continue on
         hf_counter = 0
         cur_mtime = os.path.getmtime(pathname)
         if pathname in self.mtimes and self.mtimes[pathname] == cur_mtime:
