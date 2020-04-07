@@ -27,6 +27,7 @@ mission_data += list(bl3data.find_data('/Game/PatchDLC/Dandelion/Missions', 'Mis
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'EP0'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'Mission_'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'SideMission_'))
+mission_data += list(bl3data.find_data('/Game/PatchDLC/CitizenScience/Missions', 'Mission_'))
 
 written = 0
 out_file = 'mission_rewards_output.txt'
