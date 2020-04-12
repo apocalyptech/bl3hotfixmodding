@@ -5,3 +5,5 @@ extracted
 *.csv.bak
 *.txt
 *.txt.bak
+*.json
+*.json.xz
