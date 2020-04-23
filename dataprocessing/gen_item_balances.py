@@ -710,7 +710,8 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
                                                     or part_name.endswith('/Part_SR_HYP_ZeroForPlayer') \
                                                     or part_name.endswith('/Part_SR_HYP_Tankman') \
                                                     or part_name.endswith('/Part_SR_JAK_IceQueen') \
-                                                    or part_name.endswith('/Part_SR_HYP_Woodblocks'):
+                                                    or part_name.endswith('/Part_SR_HYP_Woodblocks') \
+                                                    or part_name.endswith('_Mat'):
                                                 inspection_label = 'MATERIAL'
                                             elif 'FrontSight' in part_name:
                                                 inspection_label = 'FRONT SIGHT'
