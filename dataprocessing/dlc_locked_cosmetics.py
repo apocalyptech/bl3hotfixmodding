@@ -45,6 +45,17 @@ custs = [
         '/Game/PatchDLC/Hibiscus/Customizations/RoomDeco/RoomDeco_DLC2_6',
         '/Game/PatchDLC/Hibiscus/Customizations/RoomDeco/RoomDeco_DLC2_7',
         '/Game/PatchDLC/Hibiscus/Customizations/RoomDeco/RoomDeco_DLC2_8',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Operative/Heads/CustomHead_Operative_34',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Gunner/Heads/CustomHead_Gunner_34',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Beastmaster/Heads/CustomHead_Beastmaster_34',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/SirenBrawler/Heads/CustomHead_Siren_34',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Operative/Skins/CustomSkin_Operative_47',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Gunner/Skins/CustomSkin_Gunner_47',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/Beastmaster/Skins/CustomSkin_Beastmaster_47',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/SirenBrawler/Skins/CustomSkin_Siren_47',
+        '/Game/PatchDLC/Event2/PlayerCharacters/_Customizations/EchoDevice/ECHOTheme_44',
+        '/Game/PatchDLC/Event2/Gear/_Design/WeaponTrinkets/WeaponTrinket_Cartels_1',
+        '/Game/PatchDLC/Event2/Pickups/RoomDecoration/RoomDecoration_Event2_3',
         ]
 
 data = BL3Data()
