@@ -54,9 +54,10 @@ for balance_name in balance_names:
     # Loop through to find the first Barrel part
     barrel_name = None
     for part in invbal['RuntimePartList']['AllParts']:
-        if '_Barrel_' in part['PartData'][1]:
-            barrel_name = part['PartData'][1]
-            break
+        if 'export' not in part['PartData']:
+            if '_Barrel_' in part['PartData'][1]:
+                barrel_name = part['PartData'][1]
+                break
     if not barrel_name:
         raise Exception('Barrel Not Found!')
     barrel_full = data.get_data(barrel_name)
@@ -69,18 +70,25 @@ for balance_name in balance_names:
         raise Exception('BPInvPart not found for barrel')
 
     # Grab the name object out of it
-    title_name = barrel['TitlePartList'][0][1]
-    title_obj = data.get_exports(title_name, 'InventoryNamePartData')[0]
-    title = title_obj['PartName']['string']
+    try:
+        title_name = barrel['TitlePartList'][0][1]
+        title_obj = data.get_exports(title_name, 'InventoryNamePartData')[0]
+        title = title_obj['PartName']['string']
+    except:
+        title = '(no title found, maybe not on barrel?)'
 
     # And the red text, if we have any
     red_text = None
-    for uistat in barrel['UIStats']:
-        if 'RedText' in uistat['UIStat'][1]:
-            red_text_name = uistat['UIStat'][1]
-            red_text_obj = data.get_exports(red_text_name, 'UIStatData_Text')[0]
-            red_text = red_text_obj['Text']['string']
-            break
+    try:
+        for uistat in barrel['UIStats']:
+            if 'RedText' in uistat['UIStat'][1]:
+                red_text_name = uistat['UIStat'][1]
+                red_text_obj = data.get_exports(red_text_name, 'UIStatData_Text')[0]
+                red_text = red_text_obj['Text']['string']
+                break
+    except:
+        red_text_name = '(no red text found, maybe not on barrel?)'
+        red_text = '(no red text found, maybe not on barrel?)'
 
     # Making all kinds of assumptions in here
     print('Name: {}'.format(title))
