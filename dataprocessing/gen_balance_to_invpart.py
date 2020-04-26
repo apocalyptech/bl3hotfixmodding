@@ -8,8 +8,10 @@ from bl3data.bl3data import BL3Data
 # Creates a mapping of Balances to BPInvPart_* keys, which is used to
 # find parts when doing savegame item mappings.  (The BPInvPart_*
 # keys are what's used in InventorySerialNumberDatabase.dat.)
-# Note that this actually generates far more than just balance
-# references, but filtering those out doesn't seem worth the trouble.
+# Note that this actually generates more than just balance references,
+# though we are at least ensuring that all reported objects include
+# "bal" in their name.  That will likely filter out a bunch which
+# don't belong, anyway.
 
 output_file = 'balance_to_inv_key.json.xz'
 invparts = [
@@ -68,6 +70,8 @@ for invpart in invparts:
                 ref,
                 ref.split('/')[-1],
                 ).lower()
+        if 'bal' not in ref_full:
+            continue
         if ref_full in mapping:
             print('WARNING: {} already exists in mapping'.format(ref_full))
             continue
