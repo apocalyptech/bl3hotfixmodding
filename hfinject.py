@@ -107,7 +107,7 @@ class InjectHotfix:
         return statements
 
     def response(self, flow):
-        if flow.request.path == '/v2/client/epic/pc/oak/verification':
+        if flow.request.path.startswith('/v2/client/') and flow.request.path.endswith('/pc/oak/verification'):
 
             gzipped = False
             if 'Content-Encoding' in flow.response.headers and flow.response.headers['Content-Encoding'] == 'gzip':
