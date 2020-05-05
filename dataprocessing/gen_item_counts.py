@@ -245,7 +245,7 @@ transforms = {
 
 # "Regular" guns - second glob just matches on etech
 for glob_pattern, re_pattern in [
-        ('/Game/Gear/Weapons/*/*/_Shared/_Design/*Balance*/Balance_*',
+        ('/Game/Gear/Weapons/*/*/*Shared/_Design/*Balance*/Balance_*',
             r'^/Game/Gear/Weapons/(?P<guntype>.*?)/(?P<manufacturer>.*?)/.*',
             ),
         ('/Game/Gear/Weapons/_Shared/_Design/_Manufacturers/*/_Design/*/*/*Balance*/Balance_*',
