@@ -119,26 +119,11 @@ format.  For instance, `maggie_super_buff.txt` looks like this:
     ### Damage scale after GBX nerf: 0.15
     ###
 
-    prefix: Maggie
-
     SparkPatchEntry,(1,2,0,),/Game/Gear/Weapons/_Shared/_Design/GameplayAttributes/_Unique/DataTable_WeaponBalance_Unique_JAK.DataTable_WeaponBalance_Unique_JAK,PS_Maggie,DamageScale_2_4F6EF14648BA8F2AE9217DAFEA60EE53,0,,50.000000
 
 As you can see, the hotfix line itself is practically identically
 identical to the "raw" hotfix format, though it's prefixed by
 an additional field, which is `SparkPatchEntry` for this one.
-The line which reads `prefix: Maggie` is important as well, and is
-there so that the hotfix keys get assigned uniquely.  The hotfix
-key for that statement, for instance, will end up being
-`SparkPatchEntry-ApocMaggie1`.  If there were more than one hotfix
-in that mod file, the next would be `SparkPatchEntry-ApocMaggie2`,
-or `SparkLevelPatchEntry-ApocMaggie2`, etc.
-
-I agree that specifying a `prefix` in the file like that is
-especially lazy, but that way I don't have to worry about doing
-global unique identifiers, since mods can be toggled on/off at
-any time by editing that `modlist.txt` file.  **NOTE:** Remember
-that the prefixes should be unique for each mod file that you've
-got loaded, so the onus is on you for that.
 
 As with `modlist.txt`, if a mod file itself changes, `hfinject.py`
 will automatically re-load it when the next hotfix verification

@@ -90,13 +90,14 @@ class InjectHotfix:
                     continue
                 if line[0] == '#':
                     continue
-                if line.lower().startswith('prefix:'):
-                    # We're now ignoring this completely.  It was a bad idea anyway
-                    continue
 
                 # Process the hotfix
                 hf_counter += 1
-                (hftype, hf) = line.split(',', 1)
+                try:
+                    (hftype, hf) = line.split(',', 1)
+                except ValueError as e:
+                    print('ERROR: Line could not be processed as hotfix, aborting this mod: {}'.format(line))
+                    return []
                 statements.append('{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
                     hftype,
                     prefix,
