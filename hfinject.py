@@ -30,6 +30,7 @@ class InjectHotfix:
         self.mtimes = {}
         self.mod_data = {}
         self.to_load = []
+        self.next_prefix = 0
         self.modlist_pathname = 'injectdata/modlist.txt'
 
     def load_modlist(self):
@@ -75,7 +76,13 @@ class InjectHotfix:
         self.mtimes[pathname] = cur_mtime
         statements = []
 
-        prefix = None
+        # We're generating our own prefixes now.  Just start at 0 and keep adding 1,
+        # encoding as hex.  (I'd like to actually encode in base 36 or whatever, but
+        # I don't care enough to implement that.)
+        prefix = '{:X}'.format(self.next_prefix)
+        self.next_prefix += 1
+
+        # Read the file
         with open(pathname) as df:
             for line in df:
                 line = line.strip()
@@ -83,25 +90,19 @@ class InjectHotfix:
                     continue
                 if line[0] == '#':
                     continue
+                if line.lower().startswith('prefix:'):
+                    # We're now ignoring this completely.  It was a bad idea anyway
+                    continue
 
-                # Check for prefix
-                if not prefix:
-                    if line.lower().startswith('prefix:'):
-                        prefix = line.split(':', 1)[1].strip()
-                    else:
-                        print('WARNING: no prefix found for {}'.format(pathname))
-                        self.mod_data[pathname] = []
-                        self.mtimes[pathname] = 0
-                        return
-                else:
-                    hf_counter += 1
-                    (hftype, hf) = line.split(',', 1)
-                    statements.append('{{"key":"{}-Apoc{}{}","value":"{}"}}'.format(
-                        hftype,
-                        prefix,
-                        hf_counter,
-                        hf.replace('"', '\\"'),
-                        ))
+                # Process the hotfix
+                hf_counter += 1
+                (hftype, hf) = line.split(',', 1)
+                statements.append('{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
+                    hftype,
+                    prefix,
+                    hf_counter,
+                    hf.replace('"', '\\"'),
+                    ))
 
         self.mod_data[pathname] = statements
         return statements
