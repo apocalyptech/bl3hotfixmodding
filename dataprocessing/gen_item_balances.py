@@ -508,6 +508,32 @@ for obj_name in data.glob(glob_pattern):
         rarity,
         obj_name,
         ))
+# Base-game Legendary COMs as dropped by Trials Bosses (as of M4/Maliwan Takedown) update
+for (cname, cobj) in [
+		('Beastmaster - Bounty Hunter', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_BountyHunter'),
+		('Beastmaster - Cosmic Stalker', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_CosmicStalker'),
+		('Beastmaster - DE4DEYE', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_DE4DEYE'),
+		('Beastmaster - Friend-Bot', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_FriendBot'),
+		('Beastmaster - Rakk Commander', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_RakkCommander'),
+		('Beastmaster - Red Fang', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_RedFang'),
+		('Gunner - Bear Trooper', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BearTrooper'),
+		('Gunner - Blast Master', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BlastMaster'),
+		('Gunner - Bloodletter', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BloodLetter'),
+		('Gunner - Mind Sweeper', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_MindSweeper'),
+		('Gunner - Rocketeer', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_Rocketeer'),
+		('Operative - Cold Warrior', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_ColdWarrior'),
+		('Operative - Executor', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Executor'),
+		('Operative - Shockerator', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_FireBrand'),
+		('Operative - Infiltrator', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Infiltrator'),
+		('Operative - Techspert', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Techspert'),
+		('Siren - Breaker', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Breaker'),
+		('Siren - Dragon', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Dragon'),
+		('Siren - Elementalist', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Elementalist'),
+		('Siren - Nimbus', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Nimbus'),
+		('Siren - Phasezerker', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Phasezerker'),
+        ]:
+    com_balances.append(('{} (Trials boss drop only)'.format(cname), 'COM', '05/Legendary', cobj))
+# Post-base-game Legendary COMs
 for (cname, cobj) in [
         ("Beastmaster - R4kk P4k", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_Raid1'),
         ("Beastmaster - St4ckbot", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_DLC1'),

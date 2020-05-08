@@ -732,6 +732,9 @@ for obj_name in data.glob(glob_pattern):
         rarity,
         obj_name,
         ))
+# NOTE: Skipping the Trials-specific base-game COM drop balances here, because they're identical to the
+# "legendary" ones processed above, except for having a specific balance per.  TODO: Though I wonder if
+# we should maybe use those *instead* of the Legendary ones?  Hmm...
 for (cname, cobj) in [
         ("Beastmaster - R4kk P4k", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_Raid1'),
         ("Beastmaster - St4ckbot", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_DLC1'),
