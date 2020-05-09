@@ -718,11 +718,18 @@ for obj_name in data.glob(glob_pattern):
     elif rarity_lower == '04_veryrare':
         rarity = '04/Very Rare'
     elif rarity_lower == '05_legendary':
+        # There's one "main" legendary balance for these, which depending on part selection
+        # will "be" one of the available base-game legendary COMs.  When the Mayhem 4 /
+        # Maliwan Takedown patch was released, though, GBX assigned a dedicated drop for
+        # practically all legendary gear, including COMs, and to do that they created brand
+        # new balances for all the base-game legendary COMs (and assigned them to the Trials
+        # bosses).  These balances are identical to the main world-drop legendary balance,
+        # except that they all just have a single part for the legendary ability each, so
+        # that they can be individually assigned.  Anyway, long story short: we're gonna
+        # use *those* instead, so that we can have individual rows for each one.  I verified
+        # that the counts work out exactly the same.
         rarity = '05/Legendary'
-        # Feel free to comment this to process base game leg coms.  Using the current
-        # algorithm, base-game leg coms take a good hour to process (for all four chars),
-        # so we're skipping them by defailt.
-        print('NOTICE: Skipping base-game Legendary COM {} - processing times are quite long'.format(obj_name))
+        #print('NOTICE: Skipping base-game Legendary COM {} - we\'re enumerating them via Raid1 balances now'.format(obj_name))
         continue
     else:
         raise Exception('Unknown rarity in {}, {}'.format(obj_name, rarity_lower))
@@ -732,9 +739,36 @@ for obj_name in data.glob(glob_pattern):
         rarity,
         obj_name,
         ))
-# NOTE: Skipping the Trials-specific base-game COM drop balances here, because they're identical to the
-# "legendary" ones processed above, except for having a specific balance per.  TODO: Though I wonder if
-# we should maybe use those *instead* of the Legendary ones?  Hmm...
+# Specific Legendary COM balances added in the Mayhem 4 / Maliwan Takedown patch, which added
+# dedicated drops to practically everything.  These balances are identical to the regular
+# base-game legendary COM balances, except that there's one per COM, which makes them nicer
+# for enumeration in a spreadsheet.
+for (cname, cobj) in [
+		('Beastmaster - Bounty Hunter', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_BountyHunter'),
+		('Beastmaster - Cosmic Stalker', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_CosmicStalker'),
+		('Beastmaster - DE4DEYE', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_DE4DEYE'),
+		('Beastmaster - Friend-Bot', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_FriendBot'),
+		('Beastmaster - Rakk Commander', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_RakkCommander'),
+		('Beastmaster - Red Fang', '/Game/PatchDLC/Raid1/Gear/ClassMods/BeastMaster/InvBalD_ClassMod_Beastmaster_RedFang'),
+		('Gunner - Bear Trooper', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BearTrooper'),
+		('Gunner - Blast Master', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BlastMaster'),
+		('Gunner - Bloodletter', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_BloodLetter'),
+		('Gunner - Mind Sweeper', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_MindSweeper'),
+		('Gunner - Rocketeer', '/Game/PatchDLC/Raid1/Gear/ClassMods/Gunner/InvBalD_ClassMod_Gunner_Rocketeer'),
+		('Operative - Cold Warrior', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_ColdWarrior'),
+		('Operative - Executor', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Executor'),
+		('Operative - Shockerator', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_FireBrand'),
+		('Operative - Infiltrator', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Infiltrator'),
+		('Operative - Techspert', '/Game/PatchDLC/Raid1/Gear/ClassMods/Operative/InvBalD_ClassMod_Operative_Techspert'),
+		('Siren - Breaker', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Breaker'),
+		('Siren - Dragon', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Dragon'),
+		('Siren - Elementalist', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Elementalist'),
+		('Siren - Nimbus', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Nimbus'),
+		('Siren - Phasezerker', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Phasezerker'),
+        ]:
+    # Comment this to avoid working on these, though, since they take a super-long time.
+    #com_balances.append((cname, 'COM', '05/Legendary', cobj))
+    pass
 for (cname, cobj) in [
         ("Beastmaster - R4kk P4k", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_Raid1'),
         ("Beastmaster - St4ckbot", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_DLC1'),
