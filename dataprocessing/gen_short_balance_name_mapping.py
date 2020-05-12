@@ -59,8 +59,15 @@ for filename in files:
                             guntype,
                             )
             elif 'Character/Name' in row:
+                # Our balance sheet takes pains to point out some COM balances which only
+                # come from the Trials bosses, but for these purposes we don't care, so
+                # I'm stripping that out.
+                if 'trials boss' in row['Character/Name'].lower():
+                    com_name = row['Character/Name'].split(' (', 1)[0]
+                else:
+                    com_name = row['Character/Name']
                 label = '{} {} COM'.format(
-                        row['Character/Name'].replace(' - ', ' '),
+                        com_name.replace(' - ', ' '),
                         rarity_map[rarity],
                         )
             elif 'Type/Name' in row:
