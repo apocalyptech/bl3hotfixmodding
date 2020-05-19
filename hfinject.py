@@ -49,7 +49,10 @@ class InjectHotfix:
                 if line[0] == '#':
                     continue
 
-                mod_path = 'injectdata/{}.txt'.format(line)
+                if line[0] == '/':
+                    mod_path = '{}.txt'.format(line)
+                else:
+                    mod_path = 'injectdata/{}.txt'.format(line)
                 if os.path.exists(mod_path):
                     self.to_load.append(mod_path)
                 else:
