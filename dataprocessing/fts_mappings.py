@@ -686,5 +686,9 @@ fts_to_map = {
         '/game/patchdlc/raid1/gamedata/fasttravel/leveltraveldata/fts_raid1.fts_raid1': 'Raid_P',
         '/game/patchdlc/raid1/gamedata/fasttravel/leveltraveldata/fts_raid1droppod.fts_raid1droppod': 'Raid_P',
         '/game/patchdlc/raid1/gamedata/fasttravel/leveltraveldata/lts_sanctuary3_raid1.lts_sanctuary3_raid1': 'Sanctuary3_P',
+        '/game/patchdlc/takedown2/gamedata/leveltravel/fts_guardiantd_sendonly_2.fts_guardiantd_sendonly_2': 'GuardianTakedown_P',
+        '/game/patchdlc/takedown2/gamedata/leveltravel/fts_td2.fts_td2': 'GuardianTakedown_P',
+        '/game/patchdlc/takedown2/gamedata/leveltravel/fts_td2droppod1.fts_td2droppod1': 'GuardianTakedown_P',
+        '/game/patchdlc/takedown2/gamedata/leveltravel/lts_sanctuary3_td2.lts_sanctuary3_td2': 'Sanctuary3_P',
         }
 
