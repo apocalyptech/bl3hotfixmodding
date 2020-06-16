@@ -172,6 +172,17 @@ I've got all the stuff that I've been working on in the `injectdata`
 folder in here, so feel free to take a look in there.  The README
 in that directory should have some short descriptions of everything.
 
+When Shift Is Down
+------------------
+
+Shift had an outage earlier today and I took some initial stabs at
+"fully" pretending to be GBX, so that I could still have hotfixes even
+in the absence of GBX's services.  You can check those attempts out
+at `hfspoof_discovery.py` and `hfspoof_account.py`, though I didn't
+actually get them working.  The game seems to make/receive all the
+proper calls, but just hangs there forever at the logging-in step.
+Perhaps I'll get around to dusting that off at some point...
+
 Data Processing
 ---------------
 
