@@ -837,8 +837,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_BloodyHarvest',
             # Adds nothing, don't bother
             #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Weapons_Hibiscus',
-            # Adds some, but only conditionally during Revenge of the Cartels, so ignore it.
-            #'/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_Event2',
+            # Cartels event anointments have been made permanent, so we'll process this
+            '/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_Event2',
             ]),
         ('shield_counts.csv', shield_balances, 'Manufacturer/Name', None, True, [
             '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Shields_Raid1',
@@ -848,8 +848,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Shields_BloodyHarvest',
             # Adds nothing, don't bother
             #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Shields_Hibiscus',
-            # Adds some, but only conditionally during Revenge of the Cartels, so ignore it.
-            #'/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_Event2',
+            # Cartels event anointments have been made permanent, so we'll process this
+            '/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Shields_Event2',
             ]),
         ('grenade_counts.csv', grenade_balances, 'Manufacturer/Name', None, True, [
             '/Game/PatchDLC/Raid1/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Raid1',
@@ -859,8 +859,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/BloodyHarvest/Gear/_Design/_GearExtension/GParts/GPartExpansion_Grenades_BloodyHarvest',
             # Adds nothing, don't bother
             #'/Game/PatchDLC/Hibiscus/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Hibiscus',
-            # Adds one, but only conditionally during Revenge of the Cartels, so ignore it.
-            #'/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Weapons_Event2',
+            # Cartels event anointments have been made permanent, so we'll process this
+            '/Game/PatchDLC/Event2/Gear/_Design/_GearExtension/GParts/GPartExpansion_Grenades_Event2',
             ]),
         # COM counts take forever, they're massive (thanks mostly to skill tree parts)
         # Processing will take ~18min or so (so long as the base-game legendaries are
