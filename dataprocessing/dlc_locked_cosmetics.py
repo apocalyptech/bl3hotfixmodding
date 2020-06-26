@@ -104,6 +104,9 @@ custs = [
         '/Game/PatchDLC/Geranium/Customizations/WeaponSkin/WeaponSkin_DLC3_1',
         '/Game/PatchDLC/Geranium/Customizations/WeaponTrinket/WeaponTrinket_DLC3_1',
         '/Game/PatchDLC/Geranium/Customizations/WeaponTrinket/WeaponTrinket_DLC3_2',
+        '/Game/PatchDLC/Geranium/Customizations/RoomDeco/RoomDecoration_Geranium_IO_1',
+        '/Game/PatchDLC/Geranium/Customizations/RoomDeco/RoomDecoration_Geranium_IO_2',
+        '/Game/PatchDLC/Geranium/Customizations/RoomDeco/RoomDecoration_Geranium_IO_3',
         ]
 
 data = BL3Data()
