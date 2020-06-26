@@ -46,6 +46,7 @@ for base_path in [
         '/Game/PatchDLC/Hibiscus/GameData/FastTravel',
         '/Game/PatchDLC/Event2/GameData/FastTravel',
         '/Game/PatchDLC/Takedown2/GameData/LevelTravel',
+        '/Game/PatchDLC/Geranium/GameData/FastTravel',
         ]:
     for prefix in ['FTS_', 'RTS_', 'LTS_']:
         object_names.extend(list(data.find(base_path, prefix)))
