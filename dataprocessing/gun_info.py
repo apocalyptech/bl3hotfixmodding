@@ -19,9 +19,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
+import argparse
 from bl3data.bl3data import BL3Data
 
-balance_names = [
+hardcode_balance_names = [
         # AR
         #'/Game/PatchDLC/Hibiscus/Gear/Weapon/_Unique/Clairvoyance/Balance/Balance_AR_JAK_Clairvoyance',
         #'/Game/PatchDLC/Hibiscus/Gear/Weapon/_Unique/Homicidal/Balance/Balance_AR_COV_Homicidal',
@@ -57,26 +58,75 @@ balance_names = [
         #'/Game/PatchDLC/Hibiscus/Gear/Weapon/_Unique/UnseenThreat/Balance/Balance_SR_JAK_UnseenThreat',
 
         # Mayhem 2.0 weapons
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Backburner/Balance/Balance_HW_VLA_ETech_BackBurner',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/DNA/Balance/Balance_SM_MAL_DNA',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/DoubleTap/Balance/Balance_PS_ATL_DoubleTap',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Kaoson/Balance/Balance_SM_DAHL_Kaoson',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Monarch/Balance/Balance_AR_VLA_Monarch',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Plague/Balance/Balance_HW_TOR_Plague',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Reflux/Balance/Balance_SG_HYP_Reflux',
-        '/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/SandHawk/Balance/Balance_SR_DAL_SandHawk',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Backburner/Balance/Balance_HW_VLA_ETech_BackBurner',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/DNA/Balance/Balance_SM_MAL_DNA',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/DoubleTap/Balance/Balance_PS_ATL_DoubleTap',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Kaoson/Balance/Balance_SM_DAHL_Kaoson',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Monarch/Balance/Balance_AR_VLA_Monarch',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Plague/Balance/Balance_HW_TOR_Plague',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/Reflux/Balance/Balance_SG_HYP_Reflux',
+        #'/Game/PatchDLC/Mayhem2/Gear/Weapon/_Shared/_Unique/SandHawk/Balance/Balance_SR_DAL_SandHawk',
 
+        # DLC3 weapons
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/BioBetsy/Balance/Balance_AR_COV_BioBetsy_Rad',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/BioBetsy/Balance/Balance_AR_COV_BioBetsy_Shock',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/ContainedExplosion/Balance/Balance_AR_TOR_Contained',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/CoolBeans/Balance/Balance_AR_JAK_CoolBeans',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/DowsingRod/Balance/Balance_AR_VLA_Dowsing',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/McSmugger/Balance/Balance_AR_JAK_McSmugger',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/StoneThrow/Balance/Balance_AR_JAK_Stonethrow',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Plumage/Balance/Balance_HW_ATL_Plumage',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Satisfaction/Balance/Balance_HW_TOR_Satisfaction',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/BubbleBlaster/Balance/Balance_PS_MAL_BubbleBlaster',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Decoupler/Balance/Balance_PS_MAL_Decoupler',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Gargoyle/Balance/Balance_PS_COV_Gargoyle',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Lasocannon/Balance/Balance_PS_VLA_Lasocannon',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Miscreant/Balance/Balance_PS_VLA_Miscreant',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Peashooter/Balance/Balance_PS_JAK_Peashooter',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/PrivateInvestigator/Balance/Balance_DAL_PS_PrivateInvestigator',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/QuickDraw/Balance/Balance_PS_JAK_QuickDraw',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Rose/Balance/Balance_PS_JAK_Rose',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Sheriff/Balance/Balance_PS_JAK_Sheriff',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/UnkemptHarold/Balance/Balance_PS_TOR_UnkemptHarold',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Antler/Balance/Balance_SG_MAL_ETech_Antler',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Brightside/Balance/Balance_SG_TED_Brightside',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Dakota/Balance/Balance_SG_JAK_Dakota',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Fakobs/Balance/Balance_SG_JAK_Fakobs',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Frequency/Balance/Balance_SG_MAL_Frequency',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Shoveler/Balance/Balance_SG_Torgue_Shoveler',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/SpeakEasy/Balance/Balance_SG_JAK_SpeakEasy',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Splinter/Balance/Balance_SG_JAK_Splinter',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Copybeast/Balance/Balance_SM_HYP_Copybeast',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Earthbound/Balance/Balance_SM_TED_Earthbound',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Flipper/Balance/Balance_SM_MAL_Flipper',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/ImaginaryNumber/Balance/Balance_MAL_SR_ImaginaryNumber',
+        '/Game/PatchDLC/Geranium/Gear/Weapon/_Unique/Narp/Balance/Balance_SR_HYP_Narp',
         ]
-if len(sys.argv) > 1:
-    balance_names = [sys.argv[1]]
 
+# Args
+parser = argparse.ArgumentParser(description='Gun Info')
+parser.add_argument('--redtext',
+        action='store_true',
+        help='Output in a format copy+pastable to Red Text Explainer',
+        )
+parser.add_argument('balance_names',
+        nargs='*',
+        help='Balances to look up (will default to a hardcoded list if not specified)',
+        )
+args = parser.parse_args()
+
+# default to hardcodes
+if len(args.balance_names) == 0:
+    args.balance_names = hardcode_balance_names
+
+# Now process
 data = BL3Data()
-
-for balance_name in balance_names:
+for balance_name in args.balance_names:
 
     # Header
-    print('')
-    print('Balance: {}'.format(balance_name))
+    if not args.redtext:
+        print('')
+        print('Balance: {}'.format(balance_name))
 
     invbal = data.get_exports(balance_name, 'InventoryBalanceData')[0]
 
@@ -120,13 +170,28 @@ for balance_name in balance_names:
         red_text = '(no red text found, maybe not on barrel?)'
 
     # Making all kinds of assumptions in here
-    print('Name: {}'.format(title))
-    if red_text:
-        print('Red Text Object: {}'.format(red_text_name))
-        print('Red Text: {}'.format(red_text))
+    if args.redtext:
+        if red_text:
+            red_text = red_text.replace('[Flavor]', '')
+            red_text = red_text.replace('[/Flavor]', '')
+            red_text = red_text.replace('"', '\\"')
+            print('        ("{}",'.format(title))
+            print('            \'{}\','.format(red_text_name))
+            print('            "{}",'.format(red_text))
+            print('            "unknown"),')
+        else:
+            print('        # {}: NO RED TEXT!'.format(title))
     else:
-        print('No Red Text')
-    print('Rarity: {}'.format(invbal['RarityData'][0]))
-    print('Manufacturer: {}'.format(invbal['Manufacturers'][0]['ManufacturerData'][0]))
-    print('Type: {}'.format(invbal['GearBuilderCategory'][0]))
-    print('')
+        print('Name: {}'.format(title))
+        if red_text:
+            print('Red Text Object: {}'.format(red_text_name))
+            print('Red Text: {}'.format(red_text))
+        else:
+            print('No Red Text')
+        print('Rarity: {}'.format(invbal['RarityData'][0]))
+        print('Manufacturer: {}'.format(invbal['Manufacturers'][0]['ManufacturerData'][0]))
+        if 'GearBuilderCategory' in invbal:
+            print('Type: {}'.format(invbal['GearBuilderCategory'][0]))
+        else:
+            print('InvData: {}'.format(invbal['InventoryData'][0]))
+        print('')
