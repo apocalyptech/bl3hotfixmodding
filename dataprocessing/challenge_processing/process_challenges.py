@@ -33,6 +33,16 @@ challenges_init = [
         ("Mancubus Eldritch Statues", 'BP_CrewChallengeComp_Mancubus_DLC2'),
         ("Hammerlock's Occult Hunt", 'BP_CrewChallengeComp_Hunt_DLC2'),
         ("Gaige's Gifts", 'BP_CrewChallengeComp_Gifts_DLC2'),
+
+        # DLC3 challenges:
+        #    Creature Feature
+        #    Gehenna's Most Wanted
+        #    Good Prospects
+        #    Sato's Saga
+        #    Skin to Win
+        # ... though it looks like they might all use the exact same obj type, apart
+        # from Good Prospects, which functions totally differently.
+        ("DLC3 Challenges", 'BP_CrewChallengeComponent_Geranium'),
         ]
 
 level_to_eng = {
@@ -102,6 +112,13 @@ level_to_eng = {
         'Village_P': "Cursehaven",
         'Woods_P': "Cankerwood",
 
+        # DLC3
+        'CraterBoss_P': "Crater's Edge",
+        'Facility_P': "Bloodsun Canyon",
+        'Forest_P': "Obsidian Forest",
+        'Frontier_P': "The Blastplains",
+        'Lodge_P': "Ashfall Peaks",
+        'Town_P': "Vestige",
     }
 
 num_re = re.compile('^(.*)_(\d+)$')
@@ -119,6 +136,7 @@ map_to_full = {}
 map_re = re.compile(r'^.*(\/Game\/Maps\/.*)\/([^\.\/]+)\.\2$')
 dlc1_map_re = re.compile(r'^.*(\/Dandelion\/Maps\/.*)\/([^\.\/]+)\.\2$')
 dlc2_map_re = re.compile(r'^.*(\/Hibiscus\/Maps\/.*)\/([^\.\/]+)\.\2$')
+dlc3_map_re = re.compile(r'^.*(\/Geranium\/Maps\/.*)\/([^\.\/]+)\.\2$')
 with lzma.open('UE4Tools_NamesDump.txt.xz', 'rt', encoding='latin1') as df:
     for line in df:
         match = map_re.match(line)
@@ -138,6 +156,12 @@ with lzma.open('UE4Tools_NamesDump.txt.xz', 'rt', encoding='latin1') as df:
                     dirname = match.group(1)
                     obj_name = match.group(2)
                     map_to_full['{}.{}'.format(obj_name, obj_name)] = '{}/{}.{}'.format(dirname, obj_name, obj_name)
+                else:
+                    match = dlc3_map_re.match(line)
+                    if match:
+                        dirname = match.group(1)
+                        obj_name = match.group(2)
+                        map_to_full['{}.{}'.format(obj_name, obj_name)] = '{}/{}.{}'.format(dirname, obj_name, obj_name)
 
 # Now find our challenge objects
 print('        ("{}", \'{}\', ['.format(level_name, level_package))
