@@ -47,6 +47,22 @@ mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'Side
 mission_data += list(bl3data.find_data('/Game/PatchDLC/CitizenScience/Missions', 'Mission_'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Geranium/Missions', 'Mission_'))
 
+# Missions not not alert on, when we would otherwise have output.  Just so's I
+# don't keep getting messages for missions that I've looked at and don't care about.
+mission_no_alert = {
+        # More than one reward
+        '/Game/Missions/Side/Zone_1/City/Mission_WizardOfNogs',
+        '/Game/Missions/Side/Zone_2/Prison/Mission_FreeHugs',
+
+        # Multiple reward types
+        '/Game/Missions/Side/Zone_0/Prologue/Mission_UnderwearTink',
+
+        # No standard reward types
+        '/Game/Missions/Side/Zone_2/Wetlands/Mission_DriveAwayThePain',
+        '/Game/Missions/Plot/Mission_Ep21_Beachhead',
+        '/Game/PatchDLC/Hibiscus/Missions/Plot/EP05_DLC2',
+        }
+
 written = 0
 out_file = 'mission_rewards_output.txt'
 with open(out_file, 'w') as df:
@@ -71,8 +87,9 @@ with open(out_file, 'w') as df:
                                     item_name = None
                                     if 'export' in item['ItemPoolData']:
                                         if 'export' in item['ResolvedInventoryBalanceData']:
-                                            print('WARNING: no pool or balance found in idx {} of {}'.format(item_idx, reward_pool))
-                                            print('')
+                                            if obj_name not in mission_no_alert:
+                                                print('WARNING: no pool or balance found in idx {} of {}'.format(item_idx, reward_pool))
+                                                print('')
                                             continue
                                         else:
                                             item_name = item['ResolvedInventoryBalanceData'][1]
@@ -117,7 +134,8 @@ with open(out_file, 'w') as df:
                             elif 'RoomDecoration' in reward:
                                 reward_types.add(RD)
                             else:
-                                print('{} -> {}'.format(obj_name, reward))
+                                if obj_name not in mission_no_alert:
+                                    print('{} -> {}'.format(obj_name, reward))
 
                         # Figure out what the rest of the object name that we're going to set will
                         # look like
@@ -140,11 +158,13 @@ with open(out_file, 'w') as df:
 
                         # Write out STUFF
                         if len(reward_types) == 0:
-                            print('No standard reward types found for {} ({})'.format(obj_name, reward_pool))
-                            print('')
+                            if obj_name not in mission_no_alert:
+                                print('No standard reward types found for {} ({})'.format(obj_name, reward_pool))
+                                print('')
                         elif len(reward_types) > 1:
-                            print('Multiple reward types for {} ({}): {}'.format(obj_name, reward_pool, reward_types))
-                            print('')
+                            if obj_name not in mission_no_alert:
+                                print('Multiple reward types for {} ({}): {}'.format(obj_name, reward_pool, reward_types))
+                                print('')
                         else:
                             print("('{}.{}', {}),".format(
                                 obj_name,
@@ -155,10 +175,12 @@ with open(out_file, 'w') as df:
                             multiple_reward_tracker.append(reward_types)
 
             if len(multiple_reward_tracker) > 1:
-                print('{}: more than one reward (info only, lines were written)'.format(obj_name))
-                for reward in multiple_reward_tracker:
-                    print(' * {}'.format(reward))
-                print('')
+                # Going to omit reporting on instances I've already looked at and don't care about
+                if obj_name not in mission_no_alert:
+                    print('{}: more than one reward (info only, lines were written)'.format(obj_name))
+                    for reward in multiple_reward_tracker:
+                        print(' * {}'.format(reward))
+                    print('')
 
 print('Wrote {} lines to {}'.format(written, out_file))
 print('')
