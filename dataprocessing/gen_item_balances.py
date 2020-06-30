@@ -722,7 +722,16 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
             # Quick check...  Thus far all examples of this also have the manufacturers enumerated in the
             # parts list, so probably we don't need to worry.
             if len(bal.raw_bal_data['Manufacturers']) > 1:
-                print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal.raw_bal_data['Manufacturers'])))
+                # Excluding reporting for the ones that I've already looked at
+                if bal_name not in {
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/Chupa/Balance/InvBalD_GM_Chupa',
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/FireStorm/Balance/InvBalD_GM_VLA_FireStorm',
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/Quasar/Balance/InvBalD_GM_Quasar',
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/StormFront/Balance/InvBalD_GM_StormFront',
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/TranFusion/Balance/InvBalD_GM_TranFusion',
+                        '/Game/Gear/GrenadeMods/_Design/_Unique/WidowMaker/Balance/InvBalD_GM_WidowMaker',
+                        }:
+                    print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal.raw_bal_data['Manufacturers'])))
 
             # Loop through partlists
             seen_labels = set()
@@ -780,8 +789,20 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
                                                     if 'export' in excluder:
                                                         # WTF is going on here?  So far, this object seems to just reference *itself* in here?
                                                         # /Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback
-                                                        # Just gonna print a warning...
-                                                        print('WARNING: {} Excluders references itself?'.format(part_name))
+                                                        # Just gonna print a warning, though I'm excluding notifications for the ones that I've
+                                                        # looked at and don't actually care about. :)
+                                                        if part_name not in {
+                                                                '/Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback',
+                                                                '/Game/Gear/Shields/_Design/_Uniques/Revengenader/Parts/Part_Shield_Aug_PAN_LGD_Revengenader',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillCooldownRate',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_MeleeDamage',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthMax',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthRegen',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldCapacity',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenDelay',
+                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenRate',
+                                                                }:
+                                                            print('WARNING: {} Excluders references itself?'.format(part_name))
                                                     else:
                                                         excluders.add(excluder[1])
                                             if 'Dependencies' in export:

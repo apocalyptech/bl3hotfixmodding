@@ -171,8 +171,20 @@ class PartTreeNode(object):
                                 if 'export' in excluder:
                                     # WTF is going on here?  So far, this object seems to just reference *itself* in here?
                                     # /Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback
-                                    # Just gonna print a warning...
-                                    print('WARNING: {} Excluders references itself?'.format(part_name))
+                                    # Just gonna print a warning, though I'm excluding notifications for the ones that I've
+                                    # looked at and don't actually care about. :)
+                                    if part_name not in {
+                                            '/Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback',
+                                            '/Game/Gear/Shields/_Design/_Uniques/Revengenader/Parts/Part_Shield_Aug_PAN_LGD_Revengenader',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillCooldownRate',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_MeleeDamage',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthMax',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthRegen',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldCapacity',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenDelay',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenRate',
+                                            }:
+                                        print('WARNING: {} Excluders references itself?'.format(part_name))
                                 else:
                                     excluders.add(excluder[1])
                         if 'Dependencies' in export:
