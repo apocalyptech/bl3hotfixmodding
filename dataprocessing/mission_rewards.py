@@ -45,6 +45,7 @@ mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'EP0'
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'Mission_'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/Hibiscus/Missions', 'SideMission_'))
 mission_data += list(bl3data.find_data('/Game/PatchDLC/CitizenScience/Missions', 'Mission_'))
+mission_data += list(bl3data.find_data('/Game/PatchDLC/Geranium/Missions', 'Mission_'))
 
 written = 0
 out_file = 'mission_rewards_output.txt'
@@ -107,7 +108,7 @@ with open(out_file, 'w') as df:
                                 reward_types.add(GM)
                             elif '_Artifact_' in reward:
                                 reward_types.add(AF)
-                            elif '/Skins/' in reward:
+                            elif '/Skins/' in reward or '/PlayerSkin/' in reward:
                                 reward_types.add(SK)
                             elif '/Heads/' in reward:
                                 reward_types.add(HD)
