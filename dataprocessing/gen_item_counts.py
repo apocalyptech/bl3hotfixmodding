@@ -183,6 +183,7 @@ class PartTreeNode(object):
                                             '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldCapacity',
                                             '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenDelay',
                                             '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenRate',
+                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillDamage',
                                             }:
                                         print('WARNING: {} Excluders references itself?'.format(part_name))
                                 else:
@@ -836,9 +837,7 @@ for (cname, cobj) in [
 		('Siren - Nimbus', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Nimbus'),
 		('Siren - Phasezerker', '/Game/PatchDLC/Raid1/Gear/ClassMods/Siren/InvBalD_ClassMod_Siren_Phasezerker'),
         ]:
-    # Comment this to avoid working on these, though, since they take a super-long time.
-    #com_balances.append((cname, 'COM', '05/Legendary', cobj))
-    pass
+    com_balances.append((cname, 'COM', '05/Legendary', cobj))
 for (cname, cobj) in [
         ("Beastmaster - R4kk P4k", '/Game/PatchDLC/Raid1/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_Raid1'),
         ("Beastmaster - St4ckbot", '/Game/PatchDLC/Dandelion/Gear/CM/_D/PartSets/_U/BSM/InvBalD_CM_Beastmaster_DLC1'),
@@ -942,8 +941,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             #'/Game/PatchDLC/Geranium/Gear/_GearExtension/GParts/GPartExpansion_Grenades_Geranium',
             ]),
         # COM counts take forever, they're massive (thanks mostly to skill tree parts)
-        # Processing will take ~18min or so (so long as the base-game legendaries are
-        # being skipped, as they will be by default)
+        # Processing will take ~90min or so for the full set (something like ~18min if
+        # you comment out legendaries up there)
         #('com_counts.csv', com_balances, 'Character/Name', None, False, []),
         ('artifact_counts.csv', artifact_balances, 'Type/Name', None, False, []),
         ]:
