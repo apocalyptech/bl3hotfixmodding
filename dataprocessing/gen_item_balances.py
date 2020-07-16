@@ -721,224 +721,145 @@ for (filename, balances, man_col_name, type_col_name, partset_names) in [
 
             # Quick check...  Thus far all examples of this also have the manufacturers enumerated in the
             # parts list, so probably we don't need to worry.
-            if len(bal.raw_bal_data['Manufacturers']) > 1:
-                # Excluding reporting for the ones that I've already looked at
-                if bal_name not in {
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/Chupa/Balance/InvBalD_GM_Chupa',
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/FireStorm/Balance/InvBalD_GM_VLA_FireStorm',
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/Quasar/Balance/InvBalD_GM_Quasar',
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/StormFront/Balance/InvBalD_GM_StormFront',
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/TranFusion/Balance/InvBalD_GM_TranFusion',
-                        '/Game/Gear/GrenadeMods/_Design/_Unique/WidowMaker/Balance/InvBalD_GM_WidowMaker',
-                        }:
-                    print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal.raw_bal_data['Manufacturers'])))
+            # (actually just commenting this for now)
+            #if len(bal.raw_bal_data['Manufacturers']) > 1:
+            #    # Excluding reporting for the ones that I've already looked at
+            #    if bal_name not in {
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/Chupa/Balance/InvBalD_GM_Chupa',
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/FireStorm/Balance/InvBalD_GM_VLA_FireStorm',
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/Quasar/Balance/InvBalD_GM_Quasar',
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/StormFront/Balance/InvBalD_GM_StormFront',
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/TranFusion/Balance/InvBalD_GM_TranFusion',
+            #            '/Game/Gear/GrenadeMods/_Design/_Unique/WidowMaker/Balance/InvBalD_GM_WidowMaker',
+            #            }:
+            #        print('WARNING: {} has {} manufacturers'.format(bal_name, len(bal.raw_bal_data['Manufacturers'])))
 
             # Loop through partlists
             seen_labels = set()
             for apl_idx, category in enumerate(bal.categories):
 
-                # Looks like we might not be able to trust bEnabled fully in here?
-                #if category.enabled:
-                if True:
-
-                    if category.select_multiple:
-                        parts_min = category.num_min
-                        parts_max = category.num_max
-                        # Some items (such as the Storm Front grenade) have a bunch of parts defined
-                        # in a multi-select category but have Min/Max of 0.  These parts are never
-                        # actually selected, so ignore 'em.
-                        if parts_min == 0 and parts_max == 0:
-                            # Turns out there's a few guns too, but those rows were already getting pruned later.
-                            #print('Skipping category {} for {}; zero min/max on multi-select'.format(apl_idx, partset_name))
-                            continue
-                    else:
-                        parts_min = 1
-                        parts_max = 1
-
-                    processed_parts = []
-                    valid_labels = {}
-
-                    for part_idx, part in enumerate(category.partlist):
-
-                        part_name = part.part_name
-                        weight = data.process_bvc(part.weight)
-
-                        # Populate the cache, if we need to
-                        if part_name not in part_cache:
-                            if part_name == 'None':
-                                part_cache[part_name] = (set(), set(), None)
-                            else:
-                                excluders = set()
-                                dependencies = set()
-                                inspection_label = None
-                                part_data = data.get_data(part_name)
-                                found_export = False
-
-                                # Hardcodes for parts we can't serialize
-                                if part_name == '/Game/Gear/GrenadeMods/_Design/PartSets/Part_Manufacturer/GM_Part_Manufacturer_06_Pangolin':
-                                    # The uasset files do not include the strings Excluders, Dependencies, or PartInspectionTitleOverride,
-                                    # so we should be good to leave them blank here.
-                                    inspection_label = 'MANUFACTURER'
-                                    pass
-                                else:
-                                    for export in part_data:
-                                        if export['export_type'].startswith('BPInvPart_'):
-                                            found_export = True
-                                            if 'Excluders' in export:
-                                                for excluder in export['Excluders']:
-                                                    if 'export' in excluder:
-                                                        # WTF is going on here?  So far, this object seems to just reference *itself* in here?
-                                                        # /Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback
-                                                        # Just gonna print a warning, though I'm excluding notifications for the ones that I've
-                                                        # looked at and don't actually care about. :)
-                                                        if part_name not in {
-                                                                '/Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback',
-                                                                '/Game/Gear/Shields/_Design/_Uniques/Revengenader/Parts/Part_Shield_Aug_PAN_LGD_Revengenader',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillCooldownRate',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_MeleeDamage',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthMax',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthRegen',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldCapacity',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenDelay',
-                                                                '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenRate',
-                                                                }:
-                                                            print('WARNING: {} Excluders references itself?'.format(part_name))
-                                                    else:
-                                                        excluders.add(excluder[1])
-                                            if 'Dependencies' in export:
-                                                for dependency in export['Dependencies']:
-                                                    dependencies.add(dependency[1])
-
-                                            # Try to get the name of this partlist category
-                                            if partset_names:
-                                                inspection_label = partset_names[apl_idx]
-                                            elif 'PartInspectionTitleOverride' in export:
-                                                if len(export['PartInspectionTitleOverride']) > 1:
-                                                    print('WARNING: Longer name array in {}'.format(part_name))
-                                                title_name = export['PartInspectionTitleOverride'][0][1]
-                                                if title_name not in title_cache:
-                                                    title_obj = data.get_data(title_name)
-                                                    if len(title_obj) != 1:
-                                                        raise Exception('Unknown export length ({}) for {}'.format(len(title_obj), title_name))
-                                                    title_cache[title_name] = re.sub(r'\[/?.*?\]', '', title_obj[0]['Text']['string'])
-
-                                                    # Some hardcoded overrides
-                                                    if title_cache[title_name].startswith('TRACKING '):
-                                                        title_cache[title_name] = 'TRACKING METHOD'
-                                                    elif title_cache[title_name].endswith(' SHIELD'):
-                                                        title_cache[title_name] = 'SHIELD TYPE'
-                                                    elif title_cache[title_name].endswith(' MODULE'):
-                                                        title_cache[title_name] = 'RELOAD TYPE'
-                                                    elif title_cache[title_name].startswith('UNDERBARREL '):
-                                                        title_cache[title_name] = 'UNDERBARREL TYPE'
-
-                                                inspection_label = title_cache[title_name]
-
-                                            # More hardcodes.  The material ones (apart from the general matches on the first
-                                            # line) are sort of just guesses, but whatever.  The guns wouldn't otherwise
-                                            # have a dedicated material part, so it's probably right.
-                                            elif 'material' in part_name.lower() or '_Mat_' in part_name or '_MAT_' in part_name \
-                                                    or part_name.endswith('/Part_SR_DAL_WorldDestroyer') \
-                                                    or part_name.endswith('/Part_SR_HYP_Masterwork') \
-                                                    or part_name.endswith('/Part_SR_HYP_ZeroForPlayer') \
-                                                    or part_name.endswith('/Part_SR_HYP_Tankman') \
-                                                    or part_name.endswith('/Part_SR_JAK_IceQueen') \
-                                                    or part_name.endswith('/Part_SR_HYP_Woodblocks') \
-                                                    or part_name.endswith('_Mat'):
-                                                inspection_label = 'MATERIAL'
-                                            elif 'FrontSight' in part_name:
-                                                inspection_label = 'FRONT SIGHT'
-                                            elif 'SlideCap' in part_name:
-                                                inspection_label = 'CAPS'
-                                            elif 'Underbarrel' in part_name:
-                                                inspection_label = 'UNDERBARREL TYPE'
-                                            elif 'Magazine' in part_name or '_Mag_' in part_name:
-                                                inspection_label = 'MAGAZINE'
-                                            elif 'TheWave' in part_name:
-                                                inspection_label = 'TK WAVE'
-                                            elif '_Sight_' in part_name:
-                                                inspection_label = 'SIGHT'
-                                            elif part_name.endswith('_BoomSickle'):
-                                                inspection_label = 'BOOM SICKLE'
-                                            elif part_name.endswith('_Trigger_Fingerbiter') \
-                                                    or part_name.endswith('_Trigger_Hellwalker'):
-                                                inspection_label = 'BODY ACCESSORY'
-                                            elif part_name.endswith('/Part_AR_COV_ScopeMount'):
-                                                inspection_label = 'RAIL'
-                                            elif part_name.endswith('/Part_SG_JAK_Body') \
-                                                    or part_name.endswith('/Part_PS_MAL_Body') \
-                                                    or part_name.endswith('/Part_PS_VLA_Body'):
-                                                inspection_label = 'BODY'
-                                            break
-                                    if not found_export:
-                                        raise Exception('Could not find export for {}'.format(part_name))
-                                part_cache[part_name] = (excluders, dependencies, inspection_label)
-
-                        # Read from Cache
-                        (excluders, dependencies, inspection_label) = part_cache[part_name]
-                        processed_parts.append((part_name, excluders, dependencies, inspection_label, weight))
-                        if inspection_label:
-                            if inspection_label in valid_labels:
-                                valid_labels[inspection_label] += 1
-                            else:
-                                valid_labels[inspection_label] = 1
-
-                    # Special case!  A partset with literally just *one* part, with a name of None.
-                    # No reason to show this, has no actual bearing on the weapon.
-                    if len(processed_parts) == 1 and processed_parts[0][0] == 'None':
+                # Check for multiple-part selection
+                if category.select_multiple:
+                    parts_min = category.num_min
+                    parts_max = category.num_max
+                    # Some items (such as the Storm Front grenade) have a bunch of parts defined
+                    # in a multi-select category but have Min/Max of 0.  These parts are never
+                    # actually selected, so ignore 'em.
+                    if parts_min == 0 and parts_max == 0:
+                        # Turns out there's a few guns too, but those rows were already getting pruned later.
+                        #print('Skipping category {} for {}; zero min/max on multi-select'.format(apl_idx, partset_name))
                         continue
+                else:
+                    parts_min = 1
+                    parts_max = 1
 
-                    # Figure out what the main label should be for this part type
-                    label_text = '(unknown)'
-                    label_max = -1
-                    contention = False
-                    for label, count in valid_labels.items():
-                        if count > label_max:
-                            contention = False
-                            label_max = count
-                            label_text = label
-                        elif count == label_max:
-                            contention = True
+                processed_parts = []
 
-                    # Hardcoded fixes.  Grr.
-                    if contention:
-                        if bal.partset_name == '/Game/Gear/Weapons/Pistols/Torgue/_Shared/_Design/_Unique/Nurf/Balance/PartSet_PS_TOR_Nurf' and apl_idx == 1:
-                            # BODY ACCESSORY vs. BARREL ACCESSORY
-                            contention = False
-                            label_text = 'BODY ACCESSORY'
-                        elif bal.partset_name == '/Game/Gear/Weapons/AssaultRifles/Vladof/_Shared/_Design/_Unique/Ogre/Balance/InvPart_VLA_AR_Ogre' and apl_idx == 10:
-                            # IRON SIGHTS vs. RAIL
-                            contention = False
-                            label_text = 'RAIL'
+                for part_idx, part in enumerate(category.partlist):
 
-                    if contention:
-                        raise Exception('Contention in {}, APL {}: {}'.format(partset_name, apl_idx, valid_labels))
+                    part_name = part.part_name
+                    weight = data.process_bvc(part.weight)
 
-                    # Make sure we're not re-using a label
-                    if len(processed_parts) > 0:
-                        idx = 1
-                        label_base = label_text
-                        while label_text in seen_labels:
-                            idx += 1
-                            label_text = '{} {}'.format(label_base, idx)
-                        seen_labels.add(label_text)
+                    # Populate the cache, if we need to
+                    if part_name not in part_cache:
+                        if part_name == 'None':
+                            part_cache[part_name] = (set(), set())
+                        else:
+                            excluders = set()
+                            dependencies = set()
+                            part_data = data.get_data(part_name)
+                            found_export = False
 
-                    for (part_name, excluders, dependencies, _, weight) in processed_parts:
-                        datarow = [manufacturer]
-                        if type_col_name:
-                            datarow.append(gun_type)
-                        datarow.extend([
-                            rarity,
-                            bal_name.split('/')[-1],
-                            label_text,
-                            parts_min,
-                            parts_max,
-                            weight,
-                            part_name.split('/')[-1],
-                            ', '.join(sorted([d.split('/')[-1] for d in dependencies])),
-                            ', '.join(sorted([e.split('/')[-1] for e in excluders])),
-                            ])
-                        writer.writerow(datarow)
+                            # For some reason, we have a single part object that we can't serialize usefully.
+                            # Its .uasset file doesn't include the strings Excluders, Dependencies, or
+                            # PartInspectionTitleOverride, so we should be good to just leave it alone.
+                            if part_name != '/Game/Gear/GrenadeMods/_Design/PartSets/Part_Manufacturer/GM_Part_Manufacturer_06_Pangolin':
+                                for export in part_data:
+                                    if export['export_type'].startswith('BPInvPart_'):
+                                        found_export = True
+                                        if 'Excluders' in export:
+                                            for excluder in export['Excluders']:
+                                                if 'export' in excluder:
+                                                    # WTF is going on here?  So far, this object seems to just reference *itself* in here?
+                                                    # /Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback
+                                                    # Just gonna print a warning, though I'm excluding notifications for the ones that I've
+                                                    # looked at and don't actually care about. :)
+                                                    if part_name not in {
+                                                            '/Game/Gear/Shields/_Design/PartSets/Part_Augment/Safespace/Part_Shield_Aug_Knockback',
+                                                            '/Game/Gear/Shields/_Design/_Uniques/Revengenader/Parts/Part_Shield_Aug_PAN_LGD_Revengenader',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillCooldownRate',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_MeleeDamage',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthMax',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_HealthRegen',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldCapacity',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenDelay',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ShieldRegenRate',
+                                                            '/Game/Gear/ClassMods/_Design/PartSets/Part_Stats/Part_Primary_Stat/ClassMod_Part_Stat_Primary_ActionSkillDamage',
+                                                            }:
+                                                        print('WARNING: {} Excluders references itself?'.format(part_name))
+                                                else:
+                                                    excluders.add(excluder[1])
+                                        if 'Dependencies' in export:
+                                            for dependency in export['Dependencies']:
+                                                dependencies.add(dependency[1])
+
+                                        break
+                                if not found_export:
+                                    raise Exception('Could not find export for {}'.format(part_name))
+                            part_cache[part_name] = (excluders, dependencies)
+
+                    # Read from Cache
+                    (excluders, dependencies) = part_cache[part_name]
+                    processed_parts.append((part_name, excluders, dependencies, weight))
+
+                # If we have no parts, skip it
+                if len(processed_parts) == 0:
+                    continue
+
+                # Special case!  A partset with literally just *one* part, with a name of None.
+                # No reason to show this, has no actual bearing on the weapon.
+                if len(processed_parts) == 1 and processed_parts[0][0] == 'None':
+                    continue
+
+                # Figure out what the main label should be for this part type
+                label_text = data.get_parts_category_name([p[0] for p in processed_parts], bal_name, apl_idx)
+
+                # Hardcoded fixes.  Grr.
+                if label_text is None:
+                    if bal.partset_name == '/Game/Gear/Weapons/Pistols/Torgue/_Shared/_Design/_Unique/Nurf/Balance/PartSet_PS_TOR_Nurf' and apl_idx == 1:
+                        # BODY ACCESSORY vs. BARREL ACCESSORY
+                        label_text = 'BODY ACCESSORY'
+                    elif bal.partset_name == '/Game/Gear/Weapons/AssaultRifles/Vladof/_Shared/_Design/_Unique/Ogre/Balance/InvPart_VLA_AR_Ogre' and apl_idx == 10:
+                        # IRON SIGHTS vs. RAIL
+                        label_text = 'RAIL'
+                    else:
+                        raise Exception('Possible contention (or unknowns) in {}, APL {}'.format(bal_name, apl_idx))
+
+                # Make sure we're not re-using a label
+                if len(processed_parts) > 0:
+                    idx = 1
+                    label_base = label_text
+                    while label_text in seen_labels:
+                        idx += 1
+                        label_text = '{} {}'.format(label_base, idx)
+                    seen_labels.add(label_text)
+
+                for (part_name, excluders, dependencies, weight) in processed_parts:
+                    datarow = [manufacturer]
+                    if type_col_name:
+                        datarow.append(gun_type)
+                    datarow.extend([
+                        rarity,
+                        bal_name.split('/')[-1],
+                        label_text,
+                        parts_min,
+                        parts_max,
+                        weight,
+                        part_name.split('/')[-1],
+                        ', '.join(sorted([d.split('/')[-1] for d in dependencies])),
+                        ', '.join(sorted([e.split('/')[-1] for e in excluders])),
+                        ])
+                    writer.writerow(datarow)
 
         print('... done!')
 
