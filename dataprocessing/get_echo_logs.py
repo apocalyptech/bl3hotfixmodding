@@ -33,6 +33,7 @@ globs_rando = [
         '/Game/InteractiveObjects/EchoLog_NonMission/Data/EchoLogData/EchoLogData_*',
         '/Game/PatchDLC/Dandelion/InteractiveObjects/EchoLogs/DataAssets/EchoLogData_*',
         '/Game/PatchDLC/Hibiscus/InteractiveObjects/EchoLogs/DataAssets/EchoLogData_*',
+        '/Game/PatchDLC/Geranium/InteractiveObjects/EchoLogs/EchoLogData/EchoLogData_*',
         ]
 objects_rando = []
 for glob in globs_rando:
@@ -44,6 +45,7 @@ for glob in globs_rando:
 #        '/Game/Missions/*/*/*/*/EchoLogData_*',
 #        '/Game/PatchDLC/Dandelion/Missions/*/*/EchoLogData_*',
 #        '/Game/PatchDLC/Hibiscus/InteractiveObjects/MissionEchoLogs/DataAssets/EchoLogData_*',
+#        # Huh, no DLC3 mission echo logs?
 #        ]
 #objects_mission = []
 #for glob in globs_mission:
@@ -55,6 +57,8 @@ level_transforms = {
         'casino': 'casinointro',
         'tower': 'towerlair',
         'archives': 'archive',
+        'ghoststories': 'facility',
+        'miracle': 'frontier',
         }
 
 # There are a few ECHOs which we find this way which legit cannot
@@ -68,7 +72,7 @@ name_additions = {
 
 # Loop through randos
 echoes = []
-lvl_re = re.compile(r'^.*_([a-zA-Z]+?)\d+$')
+lvl_re = re.compile(r'^.*_([a-zA-Z]+?)\d*$')
 for (obj_name, obj) in objects_rando:
     match = lvl_re.match(obj_name)
     if not match:
