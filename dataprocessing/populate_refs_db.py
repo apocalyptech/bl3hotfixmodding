@@ -178,7 +178,7 @@ for (dirpath, dirnames, filenames) in os.walk('extracted'):
                     eta = '{}m{}s remaining'.format(mins, secs)
                 else:
                     eta = '---- remaining'
-                print('Processed {} objects (of ~160700, post-dlc3 (191192 in DB)) | {}...'.format(obj_count, eta))
+                print('Processed {} objects (of ~160900, post-2020-07-23 patch (191400 in DB)) | {}...'.format(obj_count, eta))
                 db.commit()
 
 # Ensure that we've committed
