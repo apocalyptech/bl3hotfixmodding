@@ -103,11 +103,15 @@ pool_exclusions = {
         '/Hibiscus/NonPlayerCharacters/_Generic/Gideon/_Design/Character/ItemPool_EnemyUse_AS_Guideon',
 
         # Extra noise we don't care about
+        '/Game/Enemies/Rakk/Queen/_Design/Character/ItemPool_RakkQueen_CashDrip',
+        '/Game/Enemies/Rakk/Queen/_Design/Character/ItemPool_RakkQueen_CashExplosion',
+        '/Game/Enemies/Rakk/Queen/_Design/Character/ItemPool_RakkQueen_CashTrickle',
         '/Dandelion/GameData/ItemPool/Ammo/ItemPool_JackBot_ExtraNeed_ExtraQuantity',
         '/Game/Enemies/Enforcer/_Unique/KillaVolt/_Design/ItemPool_KillaVolt_Loot_Incidental',
         '/Game/Enemies/FinalBoss/_Shared/_Design/LootPools/ItemPool_FinalBoss_Loot',
         '/Game/GameData/Loot/ItemPools/Ammo/ItemPool_Ammo_AssaulRifle',
         '/Game/GameData/Loot/ItemPools/Currency/ItemPool_Money',
+        '/Game/GameData/Loot/ItemPools/Currency/ItemPool_Money_Normal',
         '/Game/GameData/Loot/ItemPools/Guns/ItemPool_Guns_Legendary',
         '/Game/GameData/Loot/ItemPools/ItemPool_NeedandGreed',
         '/Game/Gear/Weapons/HeavyWeapons/Eridian/_Shared/_Design/Balance/ItemPool_Eridian_Fabricator',
@@ -118,6 +122,7 @@ pool_exclusions = {
 chars = [
         # Base Game
         ("Agonizer 9000", 'BPChar_Agonizer_9k'),
+        ("AMBER LAMPS", 'BPChar_ServiceBot_LOOT'),
         ("Anointed Alpha", 'BPChar_AnointedJoe'),
         ("Anointed X-2", 'BPChar_AnointedX2'),
         ("Anointed X-3", 'BPChar_AnointedX3'),
@@ -125,14 +130,18 @@ chars = [
         ("Archer Rowe", 'BPChar_HeavyDinerBoss'),
         ("Aurelia", 'BPChar_AureliaBoss'),
         ("Azalea", 'BPChar_PunkBrewHag'),
-        ("Billy, the Anointed", 'BPChar_Goliath_Anointed'),
+        ("Big Donny", 'BPChar_TinkMotorcadeBigD'),
+        ("Billy, the Anointed", 'BPChar_MansionBoss'),
+        ("Bloated Rakk / Engorged Rakk", 'BPChar_RakkQueen'),
         ("Bloodshine", 'BPChar_PsychoBloodshine'),
         ("Buttmunch", 'BPChar_SkagButtmunch'),
         ("Captain Traunt", 'BPChar_Heavy_Traunt'),
+        ("Chubby Skag", 'BPChar_SkagChubby'),
         ("Dinklebot", 'BPChar_OversphereRare01'),
+        ("Dreg / Rage", 'BPChar_Rakk_Dragon'),
         ("Dumptruck", 'BPChar_Enforcer_BountyPrologue'),
-        ("GenIVIV", 'BPChar_MechEvilAI'),
         ("General Traunt", 'BPChar_HeavyDarkTraunt'),
+        ("GenIVIV", 'BPChar_MechEvilAI'),
         ("Gigamind", 'BPChar_NogChipHolder'),
         ("Graveward", 'BPChar_EdenBoss'),
         ("Holder", 'BPChar_PrisonerHugs'),
@@ -143,22 +152,34 @@ chars = [
         ("King Bobo", 'BPChar_ApeKingBobo'),
         ("King Gnasher", 'BPChar_ApeJungleMonarch'),
         ("Lagromar", 'BPChar_TinkDemon'),
+        ("Loot Tink", 'BPChar_TinkLoot'),
         ("Max", 'BPChar_TrooperBounty03'),
         ("Mouthpiece", 'BPChar_EnforcerSacrificeBoss'),
         ("One Punch", 'BPChar_OnePunch'),
         ("Pain", 'BPChar_Terror'),
+        ("Pillaging Maniac / Loot Psycho", 'BPChar_PsychoLoot'),
         ("Preston", 'BPChar_HeavyFootstepsOfGiants'),
         ("Private Beans", 'BPChar_NogBeans'),
+        ("Queen Ant Wanette", 'BPChar_SpiderantCakeRoyalty'),
+        ("Rachael, the Anointed (and Anointed Hag)", 'BPChar_GoonAnointed'),
         ("Rampager", 'BPChar_Rampager'),
         ("Rax", 'BPChar_TrooperBounty02'),
         ("Rohner", 'BPChar_PunkMovieGoer'),
         ("Sheega", 'BPChar_PunkSkagLady'),
+        ("Shiny Grog", 'BPChar_SaurianShiny'),
         ("Shiv", 'BPChar_PsychoBadassPrologue'),
         ("Terror", 'BPChar_Pain'),
+        ("The Big-D (Big Donny's Turret)", 'BPChar_Tink_SentryRocketPodBigD'),
+        ("The Tink-Train", 'BPChar_GoonMonsterTrucker'),
+        ("Thieving Jabber", 'BPChar_ApeLoot'),
         ("Troy Calypso", 'BPChar_TroyBoss'),
         ("Trufflemunch", 'BPChar_SkagTrufflemunch'),
+        ("Tumorhead", 'BPChar_PunkBadass_Tumorhead'),
+        ("Turnkey Tim", 'BPChar_EnforcerTurnkey'),
         ("Tyreen the Destroyer", 'BPChar_FinalBoss'),
         ("Undertaker", 'BPChar_TinkUndertaker'),
+        ("Vermilingua", 'BPChar_SkagAntEater'),
+        ("Vice", 'BPChar_Rakk_DragonCryo'),
         ("Warden", 'BPChar_Goliath_CageArena'),
 
         # Zer0's Targets of Opportunity
@@ -247,6 +268,10 @@ chars = [
         ("Wotan's Better Half", 'BPChar_UpperHalf'),
         ("Wotan's Brain", 'BPChar_SpiderBrain'),
 
+        # Guardian Takedown
+        ("Anathema the Relentless", 'BPChar_GuardianBruteMiniboss'),
+        ("Scourge the Invincible Martyr", 'BPChar_GuardianBruteBoss'),
+
         # DLC1 (Moxxi's Heist of the Handsome Jackpot)
         ("DEGEN-3", 'BPChar_LoaderBadass_Venchy'),
         ("Evil St. Lawrence", 'BPChar_EnforcerBadass_Lawrence'),
@@ -306,6 +331,10 @@ chars = [
         ("Waylon Hurd", 'BPChar_GerPsychoMoleMan'),
         ("Wrendon Esk", 'BPChar_GyroPainless'),
         ]
+
+# A set of bpchar names that we can test against, to see if the expansion object is
+# setting chars that we're not looking for
+full_bpchar_set = set([c[1].lower() for c in chars])
 
 # Make sure our cache file dir exists
 if not os.path.exists(cache_dir):
@@ -433,7 +462,7 @@ class Expansions(object):
     Main wrapper class to hold expansion data
     """
 
-    def __init__(self, data, obj_name):
+    def __init__(self, data, obj_name, full_bpchar_set):
         self.data = data
         self.obj_name = obj_name
 
@@ -447,6 +476,8 @@ class Expansions(object):
         self.obj_data = data.get_data(self.obj_name)[0]
         for idx, exp in enumerate(self.obj_data['CharacterExpansions']):
             exp_bpchar = exp['key'][:-2].lower()
+            if exp_bpchar not in full_bpchar_set:
+                print('WARNING: {} found in expansion object, but not being processed (index {})'.format(exp['key'], idx), file=sys.stderr)
 
             # ItemPoolExpansions
             for e in exp['value']['ItemPoolExpansions']:
@@ -486,7 +517,7 @@ class Expansions(object):
         return None
 
 # Grab info about our pool expansions
-exps = Expansions(data, '/Game/PatchDLC/Raid1/GameData/Loot/ItemPoolExpansions/CharacterItemPoolExpansions_Raid1')
+exps = Expansions(data, '/Game/PatchDLC/Raid1/GameData/Loot/ItemPoolExpansions/CharacterItemPoolExpansions_Raid1', full_bpchar_set)
 
 def report_pool(pool_name, exps, bpchar_name):
     """
