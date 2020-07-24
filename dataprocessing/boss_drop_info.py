@@ -345,7 +345,7 @@ notes = {
         # These chars get at least some of their drops from SpawnOptions, since they use
         # "generic" bpchars
         'BPChar_ApeBadass': "Gets the following from SpawnOptions_ApeArtemis_TheHangover: Cosmic Crater, Static Touch",
-        'BPChar_MansionBoss': "Gets an extra Lead Sprinkler drop from SpawnOptions_GoliathAnointed_MansionFight",
+        'BPChar_MansionBoss': "Gets an extra Lead Sprinkler drop from SpawnOptions_GoliathAnointed_MansionFight, and seems to maybe use BPChar_Goliath_Anointed somehow?",
         'BPChar_PsychoBadass': "Gets the following from SpawnOption_Mincemeat: Tunguska",
         'BPChar_EnforcerAnointed': "Gets the following from SpawnOptions_AnointedEnforcer: Rectifier, Face-Puncher",
 
