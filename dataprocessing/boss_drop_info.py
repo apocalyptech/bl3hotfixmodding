@@ -153,12 +153,12 @@ chars = [
         ("King Gnasher", 'BPChar_ApeJungleMonarch'),
         ("Lagromar", 'BPChar_TinkDemon'),
         ("Loot Tink", 'BPChar_TinkLoot'),
+        ("Lt. Preston", 'BPChar_HeavyFootstepsOfGiants'),
         ("Max", 'BPChar_TrooperBounty03'),
         ("Mouthpiece", 'BPChar_EnforcerSacrificeBoss'),
         ("One Punch", 'BPChar_OnePunch'),
         ("Pain", 'BPChar_Terror'),
         ("Pillaging Maniac / Loot Psycho", 'BPChar_PsychoLoot'),
-        ("Preston", 'BPChar_HeavyFootstepsOfGiants'),
         ("Private Beans", 'BPChar_NogBeans'),
         ("Queen Ant Wanette", 'BPChar_SpiderantCakeRoyalty'),
         ("Rachael, the Anointed (and Anointed Hag)", 'BPChar_GoonAnointed'),
@@ -487,8 +487,11 @@ class Expansions(object):
                 # This'll be helpful for lookups
                 if exp_bpchar not in self.char_pools_expanded:
                     self.char_pools_expanded[exp_bpchar] = {}
-                if new_expansion.pool_to_expand and new_expansion.pool_to_expand.lower() not in self.char_pools_expanded[exp_bpchar]:
-                    self.char_pools_expanded[exp_bpchar][new_expansion.pool_to_expand.lower()] = new_expansion
+                if new_expansion.pool_to_expand:
+                    pool_to_expand_lower = new_expansion.pool_to_expand.lower()
+                    if pool_to_expand_lower not in self.char_pools_expanded[exp_bpchar]:
+                        self.char_pools_expanded[exp_bpchar][pool_to_expand_lower] = []
+                    self.char_pools_expanded[exp_bpchar][pool_to_expand_lower].append(new_expansion)
 
             # DropOnDeathItemPools
             for p in exp['value']['DropOnDeathItemPools']:
@@ -534,14 +537,15 @@ def report_pool(pool_name, exps, bpchar_name):
             print('  WARNING: pool is not an ordinary one...')
     else:
         print('  WARNING: pool is not serializable')
-    pe = exps.get_pool_expansion(bpchar_name, pool_name)
-    if pe:
-        print('   ++: idx {}, Additions from {}'.format(pe.expansion_index, pe.obj_path))
-        if len(pe.expanded_items) > 0:
-            for item in pe.expanded_items:
-                print('     -> {}'.format(item))
-        else:
-            print('     WARNING: Pool expanded but without any extra items')
+    pes = exps.get_pool_expansion(bpchar_name, pool_name)
+    if pes:
+        for pe in pes:
+            print('   ++: idx {}, Additions from {}'.format(pe.expansion_index, pe.obj_path))
+            if len(pe.expanded_items) > 0:
+                for item in pe.expanded_items:
+                    print('     -> {}'.format(item))
+            else:
+                print('     WARNING: Pool expanded but without any extra items')
 
 # Loop through chars
 cache_changed = False
