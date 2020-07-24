@@ -36,7 +36,7 @@ from bl3hotfixmod.bl3hotfixmod import BVC
 #   * It can fail (or at least be incomplete) in multi-boss situations where
 #     there's more than one at the same time.  For instance, the Pain/Terror/A9K
 #     drops will almost certainly have to be sorted by hand.
-#   * We can't actaully serialize BPChar objects, so we can't be totally sure
+#   * We can't actually serialize BPChar objects, so we can't be totally sure
 #     about the itempools we see listed in there, though it seems pretty good
 #     regardless.
 #
@@ -341,6 +341,9 @@ notes = {
         'BPChar_Terror': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
         'BPChar_Pain': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
         'BPChar_Agonizer_9k': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
+
+        # Mention Loot-O-Gram
+        'BPChar_OversphereRare01': "See /Game/GameData/Loot/ItemPools/Unique/ItemPool_LootOGram_ConvertedToGuns",
 
         # These chars get at least some of their drops from SpawnOptions, since they use
         # "generic" bpchars
