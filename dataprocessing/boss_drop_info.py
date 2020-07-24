@@ -128,6 +128,7 @@ chars = [
         ("Anointed X-3", 'BPChar_AnointedX3'),
         ("Anointed X-4", 'BPChar_PsychoAnointedX4'),
         ("Archer Rowe", 'BPChar_HeavyDinerBoss'),
+        ("Artemis", 'BPChar_ApeBadass'),
         ("Aurelia", 'BPChar_AureliaBoss'),
         ("Azalea", 'BPChar_PunkBrewHag'),
         ("Big Donny", 'BPChar_TinkMotorcadeBigD'),
@@ -155,13 +156,15 @@ chars = [
         ("Loot Tink", 'BPChar_TinkLoot'),
         ("Lt. Preston", 'BPChar_HeavyFootstepsOfGiants'),
         ("Max", 'BPChar_TrooperBounty03'),
+        ("Mincemeat", 'BPChar_PsychoBadass'),
         ("Mouthpiece", 'BPChar_EnforcerSacrificeBoss'),
+        ("Muldock, the Anointed", 'BPChar_EnforcerAnointed'),
         ("One Punch", 'BPChar_OnePunch'),
         ("Pain", 'BPChar_Terror'),
         ("Pillaging Maniac / Loot Psycho", 'BPChar_PsychoLoot'),
         ("Private Beans", 'BPChar_NogBeans'),
         ("Queen Ant Wanette", 'BPChar_SpiderantCakeRoyalty'),
-        ("Rachael, the Anointed (and Anointed Hag)", 'BPChar_GoonAnointed'),
+        ("Rachael, the Anointed", 'BPChar_GoonAnointed'),
         ("Rampager", 'BPChar_Rampager'),
         ("Rax", 'BPChar_TrooperBounty02'),
         ("Rohner", 'BPChar_PunkMovieGoer'),
@@ -332,6 +335,24 @@ chars = [
         ("Wrendon Esk", 'BPChar_GyroPainless'),
         ]
 
+# Hardcoded notes
+notes = {
+        # Pain/Terror/A9K are a mess
+        'BPChar_Terror': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
+        'BPChar_Pain': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
+        'BPChar_Agonizer_9k': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
+
+        # These chars get at least some of their drops from SpawnOptions, since they use
+        # "generic" bpchars
+        'BPChar_ApeBadass': "Gets the following from SpawnOptions_ApeArtemis_TheHangover: Cosmic Crater, Static Touch",
+        'BPChar_MansionBoss': "Gets an extra Lead Sprinkler drop from SpawnOptions_GoliathAnointed_MansionFight",
+        'BPChar_PsychoBadass': "Gets the following from SpawnOption_Mincemeat: Tunguska",
+        'BPChar_EnforcerAnointed': "Gets the following from SpawnOptions_AnointedEnforcer: Rectifier, Face-Puncher",
+
+        # Just wanted to make an annotation for Rachael
+        'BPChar_GoonAnointed': "Uses a generic BPChar, but we seem to get the drops properly from 'em anyway",
+        }
+
 # A set of bpchar names that we can test against, to see if the expansion object is
 # setting chars that we're not looking for
 full_bpchar_set = set([c[1].lower() for c in chars])
@@ -429,7 +450,7 @@ class DropOnDeathAddition(object):
     def __str__(self):
         return 'idx {}: {} (prob: {}) (times: {})'.format(
                 self.expansion_index,
-                self.pool.split('/')[-1],
+                self.pool,
                 self.probability,
                 self.num_times,
                 )
@@ -567,6 +588,11 @@ for char_name, bpchar_name in chars:
     print(header)
     print('-'*len(header))
     print(bpchar_full)
+
+    # Print out hardcoded notes, if we have any
+    if bpchar_name in notes:
+        print('')
+        print(' ** {}'.format(notes[bpchar_name]))
 
     # Get references from the bpchar, to find hardcoded itempools
     seen_dir_header = False
