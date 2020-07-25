@@ -345,6 +345,9 @@ notes = {
         # Mention Loot-O-Gram
         'BPChar_OversphereRare01': "See /Game/GameData/Loot/ItemPools/Unique/ItemPool_LootOGram_ConvertedToGuns",
 
+        # Mention Westergun addition
+        'BPChar_NogBeans': "Runnable Beans also gets a Westergun via SpawnOptions_NogBeans_Runnable",
+
         # These chars get at least some of their drops from SpawnOptions, since they use
         # "generic" bpchars
         'BPChar_ApeBadass': "Gets the following from SpawnOptions_ApeArtemis_TheHangover: Cosmic Crater, Static Touch",
