@@ -357,6 +357,9 @@ notes = {
 
         # Just wanted to make an annotation for Rachael
         'BPChar_GoonAnointed': "Uses a generic BPChar, but we seem to get the drops properly from 'em anyway",
+
+        # Anointed X-3 inherits basically everything from Anointed X-2's BPChar
+        'BPChar_AnointedX3': "Inherits practically everything (including drops) from X-2, so check that",
         }
 
 # A set of bpchar names that we can test against, to see if the expansion object is
