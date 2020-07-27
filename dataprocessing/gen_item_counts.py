@@ -232,7 +232,7 @@ class BalanceTree(object):
         # Start processing our part tree
         self.tree = PartTreeNode(self.data, None, set(), self.bal.categories)
 
-    def gun_count(self, anointment_additions=None):
+    def gun_count(self, anointment_additions=None, anointment_exclusions=set()):
         """
         Counts the leaves of our tree
         """
@@ -245,7 +245,13 @@ class BalanceTree(object):
                 addition = anointment_additions[self.bal_name]
             else:
                 addition = 0
-            return self.tree.leaf_count * (len(self.bal.raw_bal_data['RuntimeGenericPartList']['PartList']) + addition)
+            # Since GBX disabled spawns for a bunch of anointments with the 2020-07-23
+            # update, we can't just take a raw count of the built-in anointments
+            anoint_count = 0
+            for part in self.bal.raw_bal_data['RuntimeGenericPartList']['PartList']:
+                if 'export' in part['PartData'] or part['PartData'][1] not in anointment_exclusions:
+                    anoint_count += 1
+            return self.tree.leaf_count * (anoint_count + addition)
         else:
             return self.tree.leaf_count
 
@@ -899,6 +905,32 @@ artifact_balances = [
         ("White Elephant", 'Artifact', '05/Legendary', '/Game/PatchDLC/Raid1/Gear/Artifacts/WhiteElephant/InvBalD_Artifact_WhiteElephant'),
         ]
 
+# Anointments which have been removed from the spawn pool, as of the 2020-07-23 update.
+# The anointments still *exist*, but no new dropped gear will have them.
+anointment_exclusions = {
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/_Generic/SkillEnd_AccuracyHandling/GPart_All_SkillEnd_AccuracyHandling',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/_Generic/SkillEnd_CritDamage/GPart_All_SkillEnd_CritDamage',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/_Generic/SkillEnd_FireRateReload/GPart_All_SkillEnd_FireRateReload',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/_Generic/SkillEnd_MoveSpeed/GPart_All_SkillEnd_MoveSpeed',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/_Generic/SkillEnd_ProjectileSpeed/GPart_All_SkillEnd_ProjectileSpeed',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/Character/Gunner/Exit_NoAmmoConsumption/GPart_Gunner_NoAmmoConsumption',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/Character/Siren/Grasp_AccuracyCrit/GPart_Siren_Grasp_AccuracyCrit',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/Character/Siren/Slam_DamageReduction/GPart_Siren_Slam_DamageReduction',
+        '/Game/Gear/Weapons/_Shared/_Design/EndGameParts/Character/Siren/Slam_ReturnDamage/GPart_Siren_Slam_ReturnDamage',
+        '/Game/PatchDLC/Event2/Gear/Weapon/EndGameParts/_Generic/Passive_SlideRegenShields/GPart_All_SlideRegenShields',
+        '/Game/PatchDLC/Event2/Gear/Weapon/EndGameParts/_Generic/SkillActive_CyberSpike/GPart_EG_Gen_SkillEnd_CyberSpike',
+        '/Game/PatchDLC/Event2/Gear/Weapon/EndGameParts/_Generic/SkillActive_DamageMitigation/GPart_All_DamageMitigation',
+        '/Game/PatchDLC/Event2/Gear/Weapon/EndGameParts/_Generic/SkillActive_ShockFeedback/GPart_All_ShockFeedback',
+        '/Game/PatchDLC/Event2/Gear/Weapon/EndGameParts/_Generic/SkillEnd_HealingPool/GPart_All_HealingPool',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileAirborn/AccuracyAndHandling/GPart_EG_WhileAirborn_AccuracyHandling',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileAirborn/CritDamage/GPart_EG_WhileAirborn_CritDamage',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileAirborn/Damage/GPart_EG_WhileAirborn_Damage',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileAirborn/FireRate/GPart_EG_WhileAirborn_FireRate',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileSliding/AccuracyAndHandling/GPart_EG_WhileSliding_AccuracyHandling',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileSliding/Damage/GPart_EG_WhileSliding_Damage',
+        '/Game/PatchDLC/Raid1/Gear/Anointed/WhileSliding/FireRate/GPart_EG_WhileSliding_FireRate',
+        }
+
 # Loop through
 for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansions) in [
         ('gun_counts.csv', gun_balances, 'Manufacturer/Name', 'Gun Type', True, [
@@ -955,7 +987,11 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
         for expansion_obj in anoint_expansions:
             # Don't bother error checking on this, just do it.
             exp = data.get_exports(expansion_obj, 'InventoryGenericPartExpansionData')[0]
-            num_parts = len(exp['GenericParts']['Parts'])
+            num_parts = 0
+            for part in exp['GenericParts']['Parts']:
+                if part['PartData'][1] not in anointment_exclusions:
+                    num_parts += 1
+            #num_parts = len(exp['GenericParts']['Parts'])
 
             # Grab a list of balance collections which define the gear this expansion will act on.
             # We need to use the refs database to find out what's using the main one as a
@@ -1010,8 +1046,8 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
             bal = BalanceTree(obj_name, data)
             total_count += bal.gun_count()
             if do_anoints:
-                total_count_anoint += bal.gun_count(anointment_additions)
-                print('  -> {} ({} with anoints)'.format(bal.gun_count(), bal.gun_count(anointment_additions)))
+                total_count_anoint += bal.gun_count(anointment_additions, anointment_exclusions)
+                print('  -> {} ({} with anoints)'.format(bal.gun_count(), bal.gun_count(anointment_additions, anointment_exclusions)))
             else:
                 print('  -> {}'.format(bal.gun_count()))
 
@@ -1024,7 +1060,7 @@ for (filename, balances, man_col_name, type_col_name, do_anoints, anoint_expansi
                 bal.gun_count(),
                 ])
             if do_anoints:
-                datarow.append(bal.gun_count(anointment_additions))
+                datarow.append(bal.gun_count(anointment_additions, anointment_exclusions))
             writer.writerow(datarow)
 
             bal = None
