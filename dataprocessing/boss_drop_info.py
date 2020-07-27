@@ -371,6 +371,9 @@ notes = {
 
         # Anointed X-3 inherits basically everything from Anointed X-2's BPChar
         'BPChar_AnointedX3': "Inherits practically everything (including drops) from X-2, so check that",
+
+        # Make a note about Jabbermogwai
+        'BPChar_Ape_Hunt01': "See also /Game/Enemies/Ape/_Unique/Hunt01/_Design/Character/ItemPool_Ape_Hunt01_FireDeath",
         }
 
 # A set of bpchar names that we can test against, to see if the expansion object is
