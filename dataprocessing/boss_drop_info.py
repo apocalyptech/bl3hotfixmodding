@@ -335,6 +335,8 @@ chars = [
         ("Wrendon Esk", 'BPChar_GyroPainless'),
         ]
 
+# Some enemies get an extra pool via a SpawnOptions object, which isn't really
+# feasible to discover dynamically.  Just hardcode 'em!
 spawnoptions_redirects = {
         'BPChar_ApeBadass': [
             '/Game/Enemies/_Spawning/Ape/_Unique/SpawnOptions_ApeArtemis_TheHangover',
@@ -353,15 +355,23 @@ spawnoptions_redirects = {
             ],
         }
 
+# And a few folks have some other pools that get involved, which'd be annoying to try
+# and discover programmatically.  Hardcode these, too!
+itempool_redirects = {
+        'BPChar_OversphereRare01': [
+            ('Loot-O-Gram Pool, when redeemed', '/Game/GameData/Loot/ItemPools/Unique/ItemPool_LootOGram_ConvertedToGuns'),
+            ],
+        'BPChar_Ape_Hunt01': [
+            ('When killed with a fire weapon', '/Game/Enemies/Ape/_Unique/Hunt01/_Design/Character/ItemPool_Ape_Hunt01_FireDeath'),
+            ],
+        }
+
 # Hardcoded notes
 notes = {
         # Pain/Terror/A9K are a mess
         'BPChar_Terror': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
         'BPChar_Pain': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
         'BPChar_Agonizer_9k': "See https://gist.github.com/ed93fcaf2926ffa5ac728f81c65ec4ad",
-
-        # Mention Loot-O-Gram
-        'BPChar_OversphereRare01': "See /Game/GameData/Loot/ItemPools/Unique/ItemPool_LootOGram_ConvertedToGuns",
 
         # I seem to use a couple different BPChar references in better loot while tweaking this one...
         'BPChar_MansionBoss': "Seems to maybe use BPChar_Goliath_Anointed somehow, my mod stuff references that as well",
@@ -371,9 +381,6 @@ notes = {
 
         # Anointed X-3 inherits basically everything from Anointed X-2's BPChar
         'BPChar_AnointedX3': "Inherits practically everything (including drops) from X-2, so check that",
-
-        # Make a note about Jabbermogwai
-        'BPChar_Ape_Hunt01': "See also /Game/Enemies/Ape/_Unique/Hunt01/_Design/Character/ItemPool_Ape_Hunt01_FireDeath",
         }
 
 # A set of bpchar names that we can test against, to see if the expansion object is
@@ -657,6 +664,14 @@ for char_name, bpchar_name in chars:
             else:
                 print('')
                 print('ERROR: SpawnOptions {} found, but no extra pool defined'.format(so_name_short))
+
+    # Aaand process any other itempool redirects that exist
+    if bpchar_name in itempool_redirects:
+        for (desc, new_pool) in itempool_redirects[bpchar_name]:
+            print('')
+            print('{}:'.format(desc))
+            print(' - {}'.format(new_pool))
+            report_pool(new_pool, exps, bpchar_name)
 
     print('')
     #break
