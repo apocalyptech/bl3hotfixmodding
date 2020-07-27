@@ -227,7 +227,7 @@ chars = [
         ("Force Trooper Sapphire", 'BPChar_Trooper_Rare01e'),
         ("Force Trooper Tourmaline", 'BPChar_Trooper_Rare01d'),
         ("I'm Rakkman", 'BPChar_Rakkman'),
-        ("IndoTyrant", 'BPChar_Saurian_Rare01'),
+        ("Indo Tyrant", 'BPChar_Saurian_Rare01'),
         ("Maxitrillion", 'BPChar_ServiceBot_Rare01'),
         ("Mother of Grogans", 'BPChar_PunkMotherOfDragons'),
         ("Princess Tarantella II", 'BPChar_SpiderantTarantella'),
