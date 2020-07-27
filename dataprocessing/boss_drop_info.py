@@ -335,6 +335,24 @@ chars = [
         ("Wrendon Esk", 'BPChar_GyroPainless'),
         ]
 
+spawnoptions_redirects = {
+        'BPChar_ApeBadass': [
+            '/Game/Enemies/_Spawning/Ape/_Unique/SpawnOptions_ApeArtemis_TheHangover',
+            ],
+        'BPChar_MansionBoss': [
+            '/Game/Enemies/_Spawning/CotV/Goliaths/_Unique/SpawnOptions_GoliathAnointed_MansionFight',
+            ],
+        'BPChar_PsychoBadass': [
+            '/Game/Enemies/_Spawning/CotV/Psychos/_Unique/SpawnOption_Mincemeat',
+            ],
+        'BPChar_EnforcerAnointed': [
+            '/Game/NonPlayerCharacters/_Eden6/JakobsResistance/_Design/Spawning/SpawnOptions_AnointedEnforcer',
+            ],
+        'BPChar_NogBeans': [
+            '/Game/Enemies/_Spawning/Maliwan/Nog/_Unique/SpawnOptions_NogBeans_Runnable',
+            ],
+        }
+
 # Hardcoded notes
 notes = {
         # Pain/Terror/A9K are a mess
@@ -345,15 +363,8 @@ notes = {
         # Mention Loot-O-Gram
         'BPChar_OversphereRare01': "See /Game/GameData/Loot/ItemPools/Unique/ItemPool_LootOGram_ConvertedToGuns",
 
-        # Mention Westergun addition
-        'BPChar_NogBeans': "Runnable Beans also gets a Westergun via SpawnOptions_NogBeans_Runnable",
-
-        # These chars get at least some of their drops from SpawnOptions, since they use
-        # "generic" bpchars
-        'BPChar_ApeBadass': "Gets the following from SpawnOptions_ApeArtemis_TheHangover: Cosmic Crater, Static Touch",
-        'BPChar_MansionBoss': "Gets an extra Lead Sprinkler drop from SpawnOptions_GoliathAnointed_MansionFight, and seems to maybe use BPChar_Goliath_Anointed somehow?",
-        'BPChar_PsychoBadass': "Gets the following from SpawnOption_Mincemeat: Tunguska",
-        'BPChar_EnforcerAnointed': "Gets the following from SpawnOptions_AnointedEnforcer: Rectifier, Face-Puncher",
+        # I seem to use a couple different BPChar references in better loot while tweaking this one...
+        'BPChar_MansionBoss': "Seems to maybe use BPChar_Goliath_Anointed somehow, my mod stuff references that as well",
 
         # Just wanted to make an annotation for Rachael
         'BPChar_GoonAnointed': "Uses a generic BPChar, but we seem to get the drops properly from 'em anyway",
@@ -629,6 +640,20 @@ for char_name, bpchar_name in chars:
         else:
             print('')
             print('DropOnDeathItemPools expanded, but with no extra elements')
+
+    # Redirect through a SpawnOptions object, if appropriate
+    if bpchar_name in spawnoptions_redirects:
+        for spawnoptions_name in spawnoptions_redirects[bpchar_name]:
+            so_name_short = spawnoptions_name.split('/')[-1]
+            so_data = data.get_exports(spawnoptions_name, 'SpawnFactory_OakAI')[0]
+            if 'ItemPoolToDropOnDeath' in so_data:
+                print('')
+                print('Extra item pool via {}'.format(so_name_short))
+                print(' - {}'.format(so_data['ItemPoolToDropOnDeath'][1]))
+                report_pool(so_data['ItemPoolToDropOnDeath'][1], exps, bpchar_name)
+            else:
+                print('')
+                print('ERROR: SpawnOptions {} found, but no extra pool defined'.format(so_name_short))
 
     print('')
     #break
