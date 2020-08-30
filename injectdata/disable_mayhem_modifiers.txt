@@ -1,0 +1,41 @@
+###
+### Disable Mayhem 2.0 Modifiers
+### by Aelicante
+###
+### As the title says, disable all Mayhem 2 modifiers
+###
+### Licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+### https://creativecommons.org/licenses/by-sa/4.0/
+###
+
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[0].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[1].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[2].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[3].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[4].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_EAsy.ModSet_Mayhem2_EAsy,ModifierSets.ModifierSets[5].Weight,0,,0
+
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[0].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[1].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[2].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[3].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[4].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[5].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[6].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[7].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[8].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Medium.ModSet_Mayhem2_Medium,ModifierSets.ModifierSets[9].Weight,0,,0
+
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[0].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[1].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[2].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[3].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[4].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_Hard.ModSet_Mayhem2_Hard,ModifierSets.ModifierSets[5].Weight,0,,0
+
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[0].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[1].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[2].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[3].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[4].Weight,0,,0
+SparkPatchEntry,(1,1,0,),/Game/PatchDLC/Mayhem2/ModifierSets/ModSet_Mayhem2_VeryHard.ModSet_Mayhem2_VeryHard,ModifierSets.ModifierSets[5].Weight,0,,0
