@@ -23,13 +23,37 @@ import sys
 from bl3data.bl3data import BL3Data
 
 # This is all a bit hokey, but it seems to work in general.  Current error
-# output, as of 2020-07-20:
+# output, as of 2020-09-10 (note that it may be awhile before I can confirm
+# some of the Alisma errors):
 #
 # WARNING: More than one bpchar redirect found for /Hibiscus/Enemies/Tentacle/Basic/_Design/Character/BPChar_TentacleBasic
 # WARNING: More than one bpchar redirect found for /Hibiscus/Enemies/Zealot/Ghost/_Design/Character/BPChar_Zealot_Ghost_Invisible
 # WARNING: More than one bpchar redirect found for /Hibiscus/Enemies/Vincent/_design/Character/BPChar_Vincent_Fake_Ghost
 # WARNING: More than one bpchar redirect found for /Hibiscus/Enemies/Vincent/_design/Character/BPChar_Vincent_Fake_Ghost
 # WARNING: More than one bpchar redirect found for /Hibiscus/Enemies/Vincent/_design/Character/BPChar_Vincent_Fake_Ghost
+# ALERT: No names found, and not in our no-alert exception list: /Alisma/NonPlayerCharacters/GhostFather/BPChar_GhostKrieg_Father
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_SpineTingler
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_Rains
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_BigAss
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_SpineTingler
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_ParadeHarpoon
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_ParadeHarpoon
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_ShadesOfTruth
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_ExposureTherapy
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_GoodbyeOldFriend
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_ShadesOfTruth
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_InkBlots
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_Bell
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_GoodbyeOldFriend
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_InkBlots
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_BlastRequests
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_Bell
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Mad_ExposureTherapy
+# WARNING: More than one bpchar redirect found for /Alisma/NonPlayerCharacters/Krieg/_Design/Character/BPChar_Ali_Krieg_Sane_BigAss
+# ALERT: No names found, and not in our no-alert exception list: /Alisma/NonPlayerCharacters/GhostDaughter/BPChar_GhostKrieg_Daughter
+# ALERT: No names found, and not in our no-alert exception list: /Alisma/NonPlayerCharacters/GhostMother/BPChar_GhostKrieg_Mother
+# WARNING: More than one bpchar redirect found for /Alisma/Enemies/TrainBoss/_Shared/_Design/Character/BPChar_TrainBossVista
+# WARNING: More than one bpchar redirect found for /Alisma/Enemies/zTBD_AliPunk/Badass/BPChar_AliPunkBadass
 # WARNING: More than one bpchar redirect found for /Game/PatchDLC/Raid1/Enemies/Behemoth/_Shared/_Design/Character/BPChar_Behemoth
 # WARNING: More than one bpchar redirect found for /Game/PatchDLC/Event2/Enemies/Cyber/Trooper/Basic/_Design/Character/BPChar_TrooperBasicBossAddEvent2
 # WARNING: More than one bpchar redirect found for /Game/PatchDLC/Event2/Enemies/Cyber/ServiceBots/Melee/BPChar_ServiceBot_MeleeBossAddEvent2
