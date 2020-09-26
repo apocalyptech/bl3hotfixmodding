@@ -31,6 +31,7 @@ class InjectHotfix:
         self.mod_data = {}
         self.to_load = []
         self.next_prefix = 0
+        os.chdir(os.path.dirname(os.path.realpath(__file__))) # if not done and running in docker, os.getcwd() returns "/" which is wrong
         self.modlist_pathname = 'injectdata/modlist.txt'
 
     def load_modlist(self):
