@@ -202,7 +202,7 @@ at: https://github.com/BLCM/bl3mods
 
 An easier way to browse that collection is with the Borderlands 3
 ModCabinet wiki, which lets you browse mods by type:
-https://github.com/BLCM/BL3ModCabinet/wiki
+https://github.com/BLCM/bl3mods/wiki
 
 When Shift Is Down
 ------------------
@@ -219,11 +219,8 @@ Data Processing
 ---------------
 
 The `dataprocessing` dir contains other various utils which I've used
-to deal with BL3 data, using the bl3data library included in `injectdata`.
-Really that stuff should be split off into its own project, but I
-don't feel like having a million bl3 repos lying around, and at the
-moment I'm probably the only person likely to be using them anyway, so
-it hardly matters.
+to deal with BL3 data, using the bl3data library included in
+[the bl3mods repo](https://github.com/BLCM/bl3mods/tree/master/python_mod_helpers).
 
 License
 -------
