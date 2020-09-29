@@ -20,7 +20,9 @@
 # <https://www.gnu.org/licenses/>.
 
 import os
+import sys
 import gzip
+import configparser
 
 class InjectHotfix:
 
@@ -31,8 +33,59 @@ class InjectHotfix:
         self.mod_data = {}
         self.to_load = []
         self.next_prefix = 0
-        os.chdir(os.path.dirname(os.path.realpath(__file__))) # if not done and running in docker, os.getcwd() returns "/" which is wrong
-        self.modlist_pathname = 'injectdata/modlist.txt'
+        self.mod_dir = None
+        self.modlist_pathname = None
+        self.initialized = False
+
+        # This happens if you're running mitmproxy via docker -- do a chdir to get to
+        # where we're supposed to be, in that case.
+        if os.getcwd() == '/':
+            os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+        # Create a default `hfinject.ini` if it doesn't already exist
+        if not os.path.exists('hfinject.ini'):
+            config = configparser.ConfigParser()
+            config['main'] = {'ModDir': 'injectdata'}
+            try:
+                with open('hfinject.ini', 'w') as df:
+                    config.write(df)
+                print('-'*80)
+                print('NOTICE: hfinject.ini created with the default values.  Look it over to make')
+                print('sure that you\'re happy with the default mod location!')
+                print('')
+                print('File contents:')
+                print('')
+                with open('hfinject.ini') as df:
+                    sys.stdout.write(df.read())
+                print('-'*80)
+            except Exception as e:
+                print('-'*80)
+                print('ERROR: Could not write out example hfinject.ini file!')
+                print('-'*80)
+                return
+
+        # Now read in the ini file
+        config = configparser.ConfigParser()
+        config.read('hfinject.ini')
+        if 'main' in config and 'ModDir' in config['main']:
+            self.mod_dir = config['main']['ModDir']
+            self.modlist_pathname = os.path.join(self.mod_dir, 'modlist.txt')
+            if os.path.exists(self.modlist_pathname):
+                self.initialized = True
+                print('-'*80)
+                print('Initialized with mod directory: {}'.format(self.mod_dir))
+                print('Path to modlist.txt: {}'.format(self.modlist_pathname))
+                print('-'*80)
+            else:
+                print('-'*80)
+                print('ERROR: {} was not found -- either update your ModDir setting in'.format(self.modlist_pathname))
+                print('hfinject.ini or make sure that your modlist file is set up properly.')
+                print('-'*80)
+        else:
+            print('-'*80)
+            print('ERROR: hfinject.ini did not contain a ModDir attribute inside the')
+            print('"main" section.  Make sure that hfinject.ini is populated!')
+            print('-'*80)
 
     def load_modlist(self):
         cur_mtime = os.path.getmtime(self.modlist_pathname)
@@ -50,10 +103,10 @@ class InjectHotfix:
                 if line[0] == '#':
                     continue
 
-                if line[0] == '/':
-                    mod_path = '{}.txt'.format(line)
+                if os.path.isabs(line):
+                    mod_path = line
                 else:
-                    mod_path = 'injectdata/{}.txt'.format(line)
+                    mod_path = os.path.join(self.mod_dir, line)
                 if os.path.exists(mod_path):
                     self.to_load.append(mod_path)
                 else:
@@ -113,6 +166,15 @@ class InjectHotfix:
         return statements
 
     def response(self, flow):
+
+        # Don't do anything if we're not initialized
+        if not self.initialized:
+            print('-'*80)
+            print('modlist.txt was not found; check your hfinject.ini file and re-load')
+            print('-'*80)
+            return
+
+        # If we *are* initialized, continue with our processing
         if flow.request.path.startswith('/v2/client/') and flow.request.path.endswith('/pc/oak/verification'):
 
             gzipped = False
