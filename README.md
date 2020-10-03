@@ -215,13 +215,6 @@ actually get them working.  The game seems to make/receive all the
 proper calls, but just hangs there forever at the logging-in step.
 Perhaps I'll get around to dusting that off at some point...
 
-Data Processing
----------------
-
-The `dataprocessing` dir contains other various utils which I've used
-to deal with BL3 data, using the bl3data library included in
-[the bl3mods repo](https://github.com/BLCM/bl3mods/tree/master/python_mod_helpers).
-
 License
 -------
 

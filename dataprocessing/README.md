@@ -1,9 +1,9 @@
-Various data-processing scripts, used to drive data generation for various
-Google Sheets, my refs database, and a mod or two (before I started pulling
-that into the mod-generation scripts themselves).
+Where Did This Go?
+------------------
 
-These scripts will invariably need access to the `bl3data` and/or
-`bl3hotfixmod` libraries which live over in the `injectdata` folder, so
-you'll have to symlink or copy them over in order to make use of the
-scripts in here.
+Since splitting off my mods into the [main BLCM bl3mods repo](https://github.com/BLCM/bl3mods),
+these utils have made even less sense over here on this one.  So, they've
+moved over there.  Here's the new URL for 'em:
+
+https://github.com/BLCM/bl3mods/tree/master/Apocalyptech/dataprocessing
 
