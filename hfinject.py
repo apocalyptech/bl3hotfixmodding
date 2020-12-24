@@ -140,27 +140,31 @@ class InjectHotfix:
         self.next_prefix += 1
 
         # Read the file
-        with open(pathname) as df:
-            for line in df:
-                line = line.strip()
-                if line == '':
-                    continue
-                if line[0] == '#':
-                    continue
+        if pathname.endswith('.gz'):
+            df = gzip.open(pathname, mode='rt')
+        else:
+            df = open(pathname)
+        for line in df:
+            line = line.strip()
+            if line == '':
+                continue
+            if line[0] == '#':
+                continue
 
-                # Process the hotfix
-                hf_counter += 1
-                try:
-                    (hftype, hf) = line.split(',', 1)
-                except ValueError as e:
-                    print('ERROR: Line could not be processed as hotfix, aborting this mod: {}'.format(line))
-                    return []
-                statements.append('{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
-                    hftype,
-                    prefix,
-                    hf_counter,
-                    hf.replace('"', '\\"'),
-                    ))
+            # Process the hotfix
+            hf_counter += 1
+            try:
+                (hftype, hf) = line.split(',', 1)
+            except ValueError as e:
+                print('ERROR: Line could not be processed as hotfix, aborting this mod: {}'.format(line))
+                return []
+            statements.append('{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
+                hftype,
+                prefix,
+                hf_counter,
+                hf.replace('"', '\\"'),
+                ))
+        df.close()
 
         self.mod_data[pathname] = statements
         return statements
