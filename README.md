@@ -1,12 +1,25 @@
-Borderlands 3 Hotfix-Based Modding
-==================================
+Borderlands 3 Hotfix-Based Modding (Legacy/Linux)
+=================================================
 
-There is no traditional modding in BL3 (as of April 2, 2020) like there
-is for BL2/TPS.  In the meantime, though, while that's being figured out,
-there is *technically* a method which could be used by enterprising and
-technically savvy would-be modders: intercepting the GBX-provided
-hotfixes as they're sent from the servers, and injecting your own
-modifications.
+**Note:** Until December 24, 2020, this method of BL3 hotfix modding
+was the only publicly-released way of doing so.  With the release of
+[c0dycode's B3HM (Borderlands 3 Hotfix Merger)](https://www.nexusmods.com/borderlands3/mods/244),
+though, Windows users now have an easy way of running BL3 Hotfix mods.
+Check [borderlandsmodding.com](http://borderlandsmodding.com/bl3-running-mods/)
+for more information on setting up B3HM.
+
+At the time of B3HM's release, B3HM doesn't seem to work under Linux/Proton,
+so Linux users won't be able to make use of that newer fanciness.  The
+method on this repository was always a lot easier to get going on Linux,
+anyway, so with enough perseverance you could get this going and enjoy
+the wealth of BL3 mods which are now available.  This technique should
+still work for Windows users willing to go through the extra effort to
+get it working on that platform, too, but B3HM would be the preferred
+method for them.
+
+Basically, in order to do the kind of BL3 modding we have currently,
+the method is to intercept the GBX-provided hotfixes as they're sent from
+the servers, and inject your own modifications.
 
 This page won't go into details on how exactly to accomplish the first
 bit (namely, intercepting the hotfixes).  Given the nature of this
@@ -207,13 +220,12 @@ https://github.com/BLCM/bl3mods/wiki
 When Shift Is Down
 ------------------
 
-Shift had an outage earlier today and I took some initial stabs at
-"fully" pretending to be GBX, so that I could still have hotfixes even
-in the absence of GBX's services.  You can check those attempts out
-at `hfspoof_discovery.py` and `hfspoof_account.py`, though I didn't
-actually get them working.  The game seems to make/receive all the
-proper calls, but just hangs there forever at the logging-in step.
-Perhaps I'll get around to dusting that off at some point...
+I've taken some initial stabs at "fully" pretending to be GBX, so that I could
+still have hotfixes even in the absence of GBX's services (such as during a
+Shift outage).  You can check those attempts out at `hfspoof_discovery.py` and
+`hfspoof_account.py`, though I didn't actually get them working.  The game
+seems to make/receive all the proper calls, but just hangs there forever at the
+logging-in step.  Perhaps I'll get around to dusting that off at some point...
 
 License
 -------
