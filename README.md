@@ -6,16 +6,17 @@ was the only publicly-released way of doing so.  With the release of
 [c0dycode's B3HM (Borderlands 3 Hotfix Merger)](https://www.nexusmods.com/borderlands3/mods/244),
 though, Windows users now have an easy way of running BL3 Hotfix mods.
 Check [borderlandsmodding.com](http://borderlandsmodding.com/bl3-running-mods/)
-for more information on setting up B3HM.
+for more information on setting up B3HM.  B3HM itself *can* be run on
+Linux as well, so long as you're using the correct Wine/Proton versions.
+Check borderlandsmodding.com for info on that.
 
-At the time of B3HM's release, B3HM doesn't seem to work under Linux/Proton,
-so Linux users won't be able to make use of that newer fanciness.  The
-method on this repository was always a lot easier to get going on Linux,
-anyway, so with enough perseverance you could get this going and enjoy
-the wealth of BL3 mods which are now available.  This technique should
-still work for Windows users willing to go through the extra effort to
-get it working on that platform, too, but B3HM would be the preferred
-method for them.
+If you don't want to use B3HM, or if you can't get your Wine/Proton versions
+to run it while on Linux, another option for you is the method described
+here.  This takes a fair bit of setup, but with enough perseverance you could
+get this going and enjoy the wealth of BL3 mods which are now available.  This
+technique would also work for Windows users willing to go through the extra
+effort to get it working on that platform, too, but especially on WIndows,
+B3HM would be the preferred method.
 
 Basically, in order to do the kind of BL3 modding we have currently,
 the method is to intercept the GBX-provided hotfixes as they're sent from
