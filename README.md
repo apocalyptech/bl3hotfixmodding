@@ -128,6 +128,12 @@ for a file named `modlist.txt`, which can look like this:
     # If on Windows, you might have an absolute path like:
     C:\Mods\another_mod.txt
 
+    # You can also include other files, if you want:
+    !include other_modlist.txt
+
+    # ... and use absolute paths there, too.
+    !include C:\Mods\more_modlists.txt
+
 As you can see, lines can be commented using a hash (`#`) sign,
 and blank lines are ignored.  Each other non-commented line
 should be a name of a mod that you want to load.  If the mod
@@ -141,6 +147,11 @@ which will eventually lead to the Better Loot mod.
 
 As seen in the example, you can also just specify absolute paths
 to mod files, if you prefer.
+
+Also as seen in the example, you can use `!include` to also read
+in other mod listings, to make it easier to enable/disable groups
+of mods all at once.  You can comment out those `!include`
+lines as per usual with a hash (`#`) mark.
 
 For the mod files themselves, I didn't care enough to do too
 much abstraction, so they are very nearly just the raw hotfix

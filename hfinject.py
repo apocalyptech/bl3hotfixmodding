@@ -30,6 +30,7 @@ class InjectHotfix:
 
         # Various bits of data
         self.mtimes = {}
+        self.file_includes = set()
         self.mod_data = {}
         self.to_load = []
         self.next_prefix = 0
@@ -87,15 +88,27 @@ class InjectHotfix:
             print('"main" section.  Make sure that hfinject.ini is populated!')
             print('-'*80)
 
-    def load_modlist(self):
-        cur_mtime = os.path.getmtime(self.modlist_pathname)
-        if self.modlist_pathname in self.mtimes and self.mtimes[self.modlist_pathname] == cur_mtime:
-            return
-        print('Updating mod list...')
-        self.mtimes[self.modlist_pathname] = cur_mtime
-        self.to_load = []
+    def _get_mod_path(self, filename):
+        """
+        Returns a valid path to the given `filename`, dealing with relative dir
+        names if need be.
+        """
+        if os.path.isabs(filename):
+            return filename
+        else:
+            return os.path.join(self.mod_dir, filename)
 
-        with open(self.modlist_pathname) as df:
+    def _get_modfiles(self, filename):
+        """
+        Reads a list of modfiles to load from the given `filename`.  Will
+        recurse through `!include` statements, if found.  Will also update
+        our mtime cache for this file
+        """
+
+        self.mtimes[filename] = os.path.getmtime(filename)
+
+        to_load = []
+        with open(filename) as df:
             for line in df:
                 line = line.strip()
                 if line == '':
@@ -103,15 +116,62 @@ class InjectHotfix:
                 if line[0] == '#':
                     continue
 
-                if os.path.isabs(line):
-                    mod_path = line
+                if line.lower().startswith('!include'):
+                    split_include = line.split(maxsplit=1)
+                    if len(split_include) == 2:
+                        included_filename = self._get_mod_path(split_include[1])
+                        if os.path.exists(included_filename):
+                            print('{} includes file {}'.format(filename, included_filename))
+                            to_load.extend(self._get_modfiles(included_filename))
+                            self.file_includes.add(included_filename)
+                        else:
+                            print('WARNING: Included file {} not found'.format(included_filename))
+                    else:
+                        print('WARNING: Invalid !include found: {}'.format(line))
                 else:
-                    mod_path = os.path.join(self.mod_dir, line)
-                if os.path.exists(mod_path):
-                    self.to_load.append(mod_path)
-                else:
-                    print('WARNING: {} not found'.format(mod_path))
+                    # We got a modfile line, so add it to our list
+                    mod_path = self._get_mod_path(line)
+                    if os.path.exists(mod_path):
+                        to_load.append(mod_path)
+                    else:
+                        print('WARNING: {} not found'.format(mod_path))
 
+        return to_load
+
+    def load_modlist(self):
+        """
+        Loads our modlist, if needed
+        """
+
+        # Get a list of files to check.  Ordinarily this'll just be the single main
+        # modfile, but if we've processed any `!include` statements, we might have
+        # more than one.  If *any* file mtime isn't present in our `self.mtimes`, or
+        # if its mtime doesn't match, we'll re-load the whole lot.
+        files_to_check = [self.modlist_pathname]
+        files_to_check.extend(list(self.file_includes))
+
+        # Now do that mtime check.
+        do_load = False
+        for file_to_check in files_to_check:
+            cur_mtime = os.path.getmtime(file_to_check)
+            if file_to_check in self.mtimes:
+                if self.mtimes[file_to_check] != cur_mtime:
+                    print('{} has been updated, loading modlist...'.format(file_to_check))
+                    do_load = True
+                    break
+            else:
+                print('{} has never been read, loading modlist...'.format(file_to_check))
+                do_load = True
+                break
+        if not do_load:
+            print('No changes to modlist, skipping modlist parsing.')
+            return
+
+        # Clear out our `!include` cache, since we're re-reading from the start.
+        self.file_includes = set()
+
+        # ... and get going.
+        self.to_load = self._get_modfiles(self.modlist_pathname)
         print('Set {} mod(s) to load'.format(len(self.to_load)))
 
     def process_mod(self, pathname):
