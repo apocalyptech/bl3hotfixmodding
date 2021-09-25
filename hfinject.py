@@ -20,11 +20,43 @@
 # <https://www.gnu.org/licenses/>.
 
 import os
+import re
 import sys
 import gzip
+import string
 import configparser
 
 class InjectHotfix:
+
+    # Regex to detect type-11 hotfixes
+    type_11_re = re.compile(r'^SparkEarlyLevelPatchEntry,\(1,11,[01],(?P<map_name>[A-Za-z0-9_]+)\),.*')
+
+    # How many delay statements per map should we inject?
+    type_11_delay_count = 2
+
+    # Used letters, per-map, from the "SM_Letter" mesh set, so we know which ones
+    # we have available to inject.
+    used_sm_letters_by_map = {
+            'atlashq_p': {'A', 'B', 'F', 'I', 'K', 'L', 'N', 'O', 'Q', 'S'},
+            'bar_p': {'A', 'C', 'D', 'E', 'G', 'H', 'L', 'N', 'O', 'R', 'S', 'U', 'V'},
+            'cityvault_p': {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'Y'},
+            'covslaughter_p': {'C', 'O', 'V'},
+            'creatureslaughter_p': {'C', 'O', 'V'},
+            'desert_p': {'A', 'B', 'C', 'D', 'E', 'G', 'I', 'L', 'M', 'N', 'O', 'P', 'S', 'T', 'W'},
+            'finalboss_p': {'B', 'M', 'N', 'O', 'T', 'W'},
+            'mansion_p': {'A', 'E', 'M', 'T'},
+            'marshfields_p': {'A', 'C', 'E', 'K', 'L', 'T'},
+            'motorcade_p': {'B', 'C', 'E', 'I', 'J', 'K', 'L', 'N', 'R', 'W'},
+            'motorcadefestival_p': {'A', 'B', 'C', 'D', 'E', 'G', 'I', 'K', 'L', 'N', 'O', 'S', 'T'},
+            'motorcadeinterior_p': {'C', 'E', 'L', 'M', 'O', 'W'},
+            'prologue_p': {'A', 'C', 'E', 'G', 'I', 'K', 'L', 'O', 'P', 'R', 'S', 'T', 'Y'},
+            'sanctuary3_p': {'A', 'C', 'E', 'I', 'L', 'M', 'N', 'O', 'P', 'R', 'T', 'X', 'Z'},
+            'strip_p': {'J', 'K', 'M', 'O', 'P', 'R', 'S', 'T', 'W'},
+            'towers_p': {'A', 'C', 'D', 'E', 'F', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'Y'},
+            'trashtown_p': {'A', 'H', 'I', 'L', 'N', 'R', 'S', 'T'},
+            'wetlands_p': {'A', 'E', 'G', 'L', 'M', 'O', 'S', 'T'},
+            'woods_p': {'H', 'M', 'S', 'U'},
+            }
 
     def __init__(self):
 
@@ -192,6 +224,8 @@ class InjectHotfix:
         print('Processing {}'.format(pathname))
         self.mtimes[pathname] = cur_mtime
         statements = []
+        type_11s = []
+        type_11_maps = set()
 
         # We're generating our own prefixes now.  Just start at 0 and keep adding 1,
         # encoding as hex.  (I'd like to actually encode in base 36 or whatever, but
@@ -211,23 +245,34 @@ class InjectHotfix:
             if line[0] == '#':
                 continue
 
-            # Process the hotfix
-            hf_counter += 1
+            # Turn this into "official" hotfix JSON
             try:
                 (hftype, hf) = line.split(',', 1)
             except ValueError as e:
                 print('ERROR: Line could not be processed as hotfix, aborting this mod: {}'.format(line))
                 return []
-            statements.append('{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
-                hftype,
-                prefix,
-                hf_counter,
-                hf.replace('"', '\\"'),
-                ))
+            hotfix_json ='{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
+                    hftype,
+                    prefix,
+                    hf_counter,
+                    hf.replace('"', '\\"'),
+                    )
+            hf_counter += 1
+
+            # Check to see if this is a Type-11 hotfix
+            match = self.type_11_re.match(line)
+            if match:
+                # Found a type-11; process it specially
+                type_11s.append(hotfix_json)
+                type_11_maps.add(match.group('map_name'))
+            else:
+                # Regular hotfix
+                statements.append(hotfix_json)
+
         df.close()
 
-        self.mod_data[pathname] = statements
-        return statements
+        self.mod_data[pathname] = (statements, type_11s, type_11_maps)
+        return self.mod_data[pathname]
 
     def response(self, flow):
 
@@ -250,12 +295,46 @@ class InjectHotfix:
 
             cur_data = raw_data.decode('utf8')
             if cur_data.endswith(']}]}'):
+
+                # Load our mod list
                 self.load_modlist()
-                statements = ['']
+                statements = []
+                regulars = []
+                type_11_maps = set()
+
+                # Load each mod (or read from cache)
                 for pathname in self.to_load:
-                    statements.extend(self.process_mod(pathname))
-                if len(statements) > 1:
-                    to_inject = ','.join(statements)
+                    new_regulars, new_type_11s, new_type_11_maps = self.process_mod(pathname)
+                    regulars.extend(new_regulars)
+                    statements.extend(new_type_11s)
+                    type_11_maps |= new_type_11_maps
+
+                # If we have any statements at this point, they're all type 11, so
+                # introduce some artificial delay statements.  We're keeping track
+                # of used lowercase names just in case we see mixed case
+                if statements:
+                    seen_levels = set()
+                    delay_idx = 0
+                    for map_name in type_11_maps:
+                        map_name_lower = map_name.lower()
+                        if map_name_lower in seen_levels:
+                            continue
+                        used_letters = 0
+                        for letter in string.ascii_uppercase:
+                            if map_name_lower in self.used_sm_letters_by_map and letter in self.used_sm_letters_by_map[map_name_lower]:
+                                continue
+                            statements.append(f'{{"key":"SparkEarlyLevelPatchEntry-Delay-{delay_idx}","value":"(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'\\"/Game/LevelArt/Environments/_Global/Letters/Meshes/SM_Letter_{letter}.SM_Letter_{letter}\\"\'"}}')
+                            delay_idx += 1
+                            used_letters += 1
+                            if used_letters >= self.type_11_delay_count:
+                                break
+                        statements.append(f'{{"key":"SparkEarlyLevelPatchEntry-Delay-{delay_idx}","value":"(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'\\"/Game/Gear/Game/Resonator/Model/Meshes/SM_Eridian_Resonator.SM_Eridian_Resonator\\"\'"}}')
+                        delay_idx += 1
+
+                # Now concat everything and do the injection
+                statements.extend(regulars)
+                if statements:
+                    to_inject = ',' + ','.join(statements)
                 else:
                     to_inject = ''
                 cur_data = '{}{}{}'.format(
