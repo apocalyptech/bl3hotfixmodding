@@ -214,7 +214,7 @@ class InjectHotfix:
             if pathname in self.mtimes:
                 del self.mtimes[pathname]
             print('WARNING: {} not found'.format(pathname))
-            return []
+            return ([], [], set())
 
         # Now continue on
         hf_counter = 0
