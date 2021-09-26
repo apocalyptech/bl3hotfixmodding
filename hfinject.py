@@ -28,7 +28,10 @@ import configparser
 
 class InjectHotfix:
 
-    # Regex to detect type-11 hotfixes
+    # Regex to detect type-11 hotfixes.  We can use string .startswith() and
+    # some splitting/slicing to run this ~40% faster, but it honestly doesn't
+    # seem worth it; it's still down in the hundredths of seconds for my
+    # entire mod set.
     type_11_re = re.compile(r'^SparkEarlyLevelPatchEntry,\(1,11,[01],(?P<map_name>[A-Za-z0-9_]+)\),.*')
 
     # How many delay statements per map should we inject?
