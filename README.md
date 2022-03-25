@@ -239,6 +239,17 @@ Shift outage).  You can check those attempts out at `hfspoof_discovery.py` and
 seems to make/receive all the proper calls, but just hangs there forever at the
 logging-in step.  Perhaps I'll get around to dusting that off at some point...
 
+Tiny Tina's Wonderlands
+-----------------------
+
+It's extremely likely that this project will work just fine with Tiny Tina's
+Wonderlands, but I'm personally waiting for the Steam release, so I can't
+test it for some time.  The main thing you'd need to change is line 290 in
+`hfinject.py` -- change `oak` to `daffodil` in there.  Note that the custom
+type-11 hotfix processing that the app takes care of will *not* work properly;
+the app would need to define an alternate set of available meshes (and an
+object to use to swap them into Wonderlands memory) in order for that to work.
+
 License
 -------
 
