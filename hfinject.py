@@ -23,6 +23,7 @@ import os
 import re
 import sys
 import gzip
+import json
 import string
 import configparser
 
@@ -254,23 +255,21 @@ class InjectHotfix:
             except ValueError as e:
                 print('ERROR: Line could not be processed as hotfix, aborting this mod: {}'.format(line))
                 return []
-            hotfix_json ='{{"key":"{}-Apoc{}-{}","value":"{}"}}'.format(
-                    hftype,
-                    prefix,
-                    hf_counter,
-                    hf.replace('"', '\\"'),
-                    )
+            hotfix_struct = {
+                    'key': '{}-Apoc{}-{}'.format(hftype, prefix, hf_counter),
+                    'value': hf,
+                    }
             hf_counter += 1
 
             # Check to see if this is a Type-11 hotfix
             match = self.type_11_re.match(line)
             if match:
                 # Found a type-11; process it specially
-                type_11s.append(hotfix_json)
+                type_11s.append(hotfix_struct)
                 type_11_maps.add(match.group('map_name'))
             else:
                 # Regular hotfix
-                statements.append(hotfix_json)
+                statements.append(hotfix_struct)
 
         df.close()
 
@@ -296,62 +295,92 @@ class InjectHotfix:
             else:
                 raw_data = flow.response.data.content
 
-            cur_data = raw_data.decode('utf8')
-            if cur_data.endswith(']}]}'):
+            # Parse the existing services data
+            have_json = False
+            try:
+                cur_data = json.loads(raw_data.decode('utf8'))
+                if type(cur_data) == dict and 'services' in cur_data:
+                    have_json = True
+            except json.decoder.JSONDecodeError as e:
+                pass
 
-                # Load our mod list
-                self.load_modlist()
-                statements = []
-                regulars = []
-                type_11_maps = set()
-
-                # Load each mod (or read from cache)
-                for pathname in self.to_load:
-                    new_regulars, new_type_11s, new_type_11_maps = self.process_mod(pathname)
-                    regulars.extend(new_regulars)
-                    statements.extend(new_type_11s)
-                    type_11_maps |= new_type_11_maps
-
-                # If we have any statements at this point, they're all type 11, so
-                # introduce some artificial delay statements.  We're keeping track
-                # of used lowercase names just in case we see mixed case
-                if statements:
-                    seen_levels = set()
-                    delay_idx = 0
-                    for map_name in type_11_maps:
-                        map_name_lower = map_name.lower()
-                        if map_name_lower in seen_levels:
-                            continue
-                        used_letters = 0
-                        for letter in string.ascii_uppercase:
-                            if map_name_lower in self.used_sm_letters_by_map and letter in self.used_sm_letters_by_map[map_name_lower]:
-                                continue
-                            statements.append(f'{{"key":"SparkEarlyLevelPatchEntry-Delay-{delay_idx}","value":"(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'\\"/Game/LevelArt/Environments/_Global/Letters/Meshes/SM_Letter_{letter}.SM_Letter_{letter}\\"\'"}}')
-                            delay_idx += 1
-                            used_letters += 1
-                            if used_letters >= self.type_11_delay_count:
-                                break
-                        statements.append(f'{{"key":"SparkEarlyLevelPatchEntry-Delay-{delay_idx}","value":"(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'\\"/Game/Gear/Game/Resonator/Model/Meshes/SM_Eridian_Resonator.SM_Eridian_Resonator\\"\'"}}')
-                        delay_idx += 1
-
-                # Now concat everything and do the injection
-                statements.extend(regulars)
-                if statements:
-                    to_inject = ',' + ','.join(statements)
-                else:
-                    to_inject = ''
-                cur_data = '{}{}{}'.format(
-                        cur_data[:-4],
-                        to_inject,
-                        cur_data[-4:],
-                        )
+            # If we didn't get JSON, or the JSON isn't formatted how we expect, just pass through the data.
+            if not have_json:
                 if gzipped:
-                    flow.response.data.content = gzip.compress(cur_data.encode('utf8'))
+                    flow.response.data.content = gzip.compress(raw_data)
                 else:
-                    flow.response.data.content = cur_data.encode('utf8')
-                #if 'Content-Length' in flow.response.headers:
-                #    # This isn't actually the case for GBX
-                #    flow.response.headers['Content-Length'] = str(len(flow.response.data.content))
+                    flow.response.data.content = raw_data
+                return
+
+            # Find our Micropatch service, or create a new one
+            micropath_service = None
+            for service in cur_data['services']:
+                if service['service_name'] == 'Micropatch':
+                    micropatch_service = service
+                    break
+            if not micropatch_service:
+                micropatch_service = {
+                        'service_name': 'Micropatch',
+                        'configuration_group': 'Oak_Crossplay_Default',
+                        'configuration_version': '42',
+                        'parameters': [],
+                        }
+                cur_data['services'].append(micropatch_service)
+
+            # Load our mod list
+            self.load_modlist()
+            regulars = []
+            type_11_maps = set()
+
+            # Load each mod (or read from cache)
+            type_11_count = 0
+            for pathname in self.to_load:
+                new_regulars, new_type_11s, new_type_11_maps = self.process_mod(pathname)
+                regulars.extend(new_regulars)
+                micropatch_service['parameters'].extend(new_type_11s)
+                type_11_count += len(new_type_11s)
+                type_11_maps |= new_type_11_maps
+
+            # If we have any type-11 hotfixes, introduce some artificial delay statements.
+            # We're keeping track of used lowercase names just in case we see mixed case
+            if type_11_count > 0:
+                seen_levels = set()
+                delay_idx = 0
+                for map_name in type_11_maps:
+                    map_name_lower = map_name.lower()
+                    if map_name_lower in seen_levels:
+                        continue
+                    used_letters = 0
+                    for letter in string.ascii_uppercase:
+                        if map_name_lower in self.used_sm_letters_by_map and letter in self.used_sm_letters_by_map[map_name_lower]:
+                            continue
+                        micropatch_service['parameters'].append({
+                            'key': f'SparkEarlyLevelPatchEntry-Delay-{delay_idx}',
+                            'value': f'(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'"/Game/LevelArt/Environments/_Global/Letters/Meshes/SM_Letter_{letter}.SM_Letter_{letter}"\'',
+                            })
+                        delay_idx += 1
+                        used_letters += 1
+                        if used_letters >= self.type_11_delay_count:
+                            break
+                    micropatch_service['parameters'].append({
+                        'key': f'SparkEarlyLevelPatchEntry-Delay-{delay_idx}',
+                        'value': f'(1,1,0,{map_name}),/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C,StaticMeshComponent.Object..StaticMesh,0,,StaticMesh\'"/Game/Gear/Game/Resonator/Model/Meshes/SM_Eridian_Resonator.SM_Eridian_Resonator"\'',
+                        })
+                    delay_idx += 1
+
+            # Now concat everything and do the injection
+            micropatch_service['parameters'].extend(regulars)
+            injected = json.dumps(cur_data,
+                    ensure_ascii=False,
+                    separators=(',', ':'),
+                    )
+            if gzipped:
+                flow.response.data.content = gzip.compress(injected.encode('utf8'))
+            else:
+                flow.response.data.content = injected.encode('utf8')
+            #if 'Content-Length' in flow.response.headers:
+            #    # This isn't actually the case for GBX
+            #    flow.response.headers['Content-Length'] = str(len(flow.response.data.content))
 
 addons = [
     InjectHotfix()
