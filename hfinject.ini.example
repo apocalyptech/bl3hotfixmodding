@@ -1,3 +1,4 @@
 [main]
-ModDir = injectdata
+moddir_bl3 = injectdata_bl3
+moddir_wl = injectdata_wl
 
