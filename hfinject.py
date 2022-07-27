@@ -228,6 +228,9 @@ class GameInjector:
                 continue
             if line[0] == '#':
                 continue
+            if line[0] == '@':
+                # ignore BLIMP tags
+                continue
 
             # Turn this into "official" hotfix JSON
             try:
