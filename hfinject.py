@@ -29,14 +29,17 @@ import configparser
 
 class GameInjector:
     """
-    Generic class to describe how to inject hotfixes for a generic game.  Requires that
-    a few attributes be filled in for implementing classes, namely `shortname`,
-    `codename`, and `default_micropatch_name.  This was originally abstracted out because
-    we needed to handle type-11 hotfixing pretty differently between BL3 and Wonderlands,
-    but in August 2022 I figured out some alternat objects to use which work identically
-    between both games.  As it stands right now, it's a bit stupid to even bother
-    subclassing these things -- should maybe just pass those three required attributes
-    into the constructor or something.  But whatever, will leave it for now.
+    Generic class to describe how to inject hotfixes for a generic game.
+    Requires that a few attributes be filled in for implementing classes,
+    namely `shortname`, `codename`, and `default_micropatch_name.
+
+    This was originally abstracted out because we needed to handle type-11
+    hotfixing pretty differently between BL3 and Wonderlands, but in August
+    2022 I figured out some alternate objects to use which work identically
+    between both games.  As it stands right now, it's a bit stupid to even
+    bother subclassing these things -- should maybe just pass those three
+    required attributes into the constructor or something.  But whatever, will
+    leave it for now.
     """
 
     # Game identifiers
