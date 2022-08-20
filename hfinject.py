@@ -28,6 +28,16 @@ import string
 import configparser
 
 class GameInjector:
+    """
+    Generic class to describe how to inject hotfixes for a generic game.  Requires that
+    a few attributes be filled in for implementing classes, namely `shortname`,
+    `codename`, and `default_micropatch_name.  This was originally abstracted out because
+    we needed to handle type-11 hotfixing pretty differently between BL3 and Wonderlands,
+    but in August 2022 I figured out some alternat objects to use which work identically
+    between both games.  As it stands right now, it's a bit stupid to even bother
+    subclassing these things -- should maybe just pass those three required attributes
+    into the constructor or something.  But whatever, will leave it for now.
+    """
 
     # Game identifiers
     shortname = None
@@ -37,20 +47,29 @@ class GameInjector:
     default_micropatch_name = None
 
     # Type-11 Hotfix parameters.  We need an object+attr to inject into, and a default mesh
-    # to restore it to at the end.  The list of meshes to use should be yielded from the
-    # type_11_delay_meshes() function down below.
-    type_11_obj = None
-    type_11_attr = None
-    type_11_default = None
+    # to restore it to at the end.
+    type_11_obj = '/Game/Pickups/Ammo/BPAmmoItem_Pistol.Default__BPAmmoItem_Pistol_C'
+    type_11_attr = 'ItemMeshComponent.Object..StaticMesh'
+    type_11_default = '/Game/Pickups/Ammo/Model/Meshes/SM_ammo_pistol.SM_ammo_pistol'
+
+    # Meshes to use for type-11 delays
+    type_11_delay_meshes = [
+            '/Engine/EditorMeshes/Camera/SM_CraneRig_Arm.SM_CraneRig_Arm',
+            '/Engine/EditorMeshes/Camera/SM_CraneRig_Base.SM_CraneRig_Base',
+            '/Engine/EditorMeshes/Camera/SM_CraneRig_Body.SM_CraneRig_Body',
+            '/Engine/EditorMeshes/Camera/SM_CraneRig_Mount.SM_CraneRig_Mount',
+            '/Engine/EditorMeshes/Camera/SM_RailRig_Mount.SM_RailRig_Mount',
+            '/Engine/EditorMeshes/Camera/SM_RailRig_Track.SM_RailRig_Track',
+            ]
+
+    # How many delay statements per map should we inject?
+    type_11_delay_count = 2
 
     # Regex to detect type-11 hotfixes.  We can use string .startswith() and
     # some splitting/slicing to run this ~40% faster, but it honestly doesn't
     # seem worth it; it's still down in the hundredths of seconds for my
     # entire mod set.
     type_11_re = re.compile(r'^SparkEarlyLevelPatchEntry,\(1,11,[01],(?P<map_name>[A-Za-z0-9_]+)\),.*')
-
-    # How many delay statements per map should we inject?
-    type_11_delay_count = 2
 
     def __init__(self, config):
 
@@ -68,11 +87,6 @@ class GameInjector:
         self.mod_dir = None
         self.modlist_pathname = None
         self.initialized = False
-        self.type_11_supported = all([attr is not None for attr in [
-            self.type_11_obj,
-            self.type_11_attr,
-            self.type_11_default,
-            ]])
 
         if 'main' in config and moddir_param in config['main']:
             self.mod_dir = config['main'][moddir_param]
@@ -203,7 +217,6 @@ class GameInjector:
         statements = []
         type_11s = []
         type_11_maps = set()
-        seen_type_11_warning = False
 
         # We're generating our own prefixes now.  Just start at 0 and keep adding 1,
         # encoding as hex.  (I'd like to actually encode in base 36 or whatever, but
@@ -242,16 +255,8 @@ class GameInjector:
             match = self.type_11_re.match(line)
             if match:
                 # Found a type-11; process it specially
-                if self.type_11_supported:
-                    type_11s.append(hotfix_struct)
-                    type_11_maps.add(match.group('map_name'))
-                else:
-                    # Actually, don't error out -- allow it to continue but with a warning.
-                    if not seen_type_11_warning:
-                        self.output(f'WARNING: {pathname} contains type-11 hotfixes but that is not supported by this game yet')
-                        self.output('No custom processing will be done to support it!')
-                        seen_type_11_warning = True
-                    statements.append(hotfix_struct)
+                type_11s.append(hotfix_struct)
+                type_11_maps.add(match.group('map_name'))
             else:
                 # Regular hotfix
                 statements.append(hotfix_struct)
@@ -327,11 +332,6 @@ class GameInjector:
             type_11_count += len(new_type_11s)
             type_11_maps |= new_type_11_maps
 
-        # process_mod() should refuse to process mods with type-11 hotfixes if it's
-        # not supported, but do a quick check here anyway
-        if not self.type_11_supported:
-            type_11_count = 0
-
         # If we have any type-11 hotfixes, introduce some artificial delay statements.
         # We're keeping track of used lowercase names just in case we see mixed case
         if type_11_count > 0:
@@ -342,7 +342,7 @@ class GameInjector:
                 if map_name_lower in seen_levels:
                     continue
                 used_delays = 0
-                for letter_mesh in self.type_11_delay_meshes(map_name_lower):
+                for letter_mesh in self.type_11_delay_meshes:
                     micropatch_service['parameters'].append({
                         'key': f'SparkEarlyLevelPatchEntry-Delay-{delay_idx}',
                         'value': f'(1,1,0,{map_name}),{self.type_11_obj},{self.type_11_attr},0,,StaticMesh\'"{letter_mesh}"\'',
@@ -371,14 +371,6 @@ class GameInjector:
         #    # This isn't actually the case for GBX
         #    flow.response.headers['Content-Length'] = str(len(flow.response.data.content))
 
-    def type_11_delay_meshes(self):
-        """
-        Implement this if the injector supports type-11 hotfixes.  Should yield mesh
-        names which can be used as delay statements inbetween the type-11 and the
-        positioning hotfixes.
-        """
-        yield None
-
 class BL3(GameInjector):
 
     # Game identifiers
@@ -388,45 +380,6 @@ class BL3(GameInjector):
     # Default micropatch service name
     default_micropatch_name = 'Oak_Crossplay_Default'
 
-    # Type-11 injection parameters
-    type_11_obj = '/Game/Gear/Game/Resonator/_Design/BP_Eridian_Resonator.Default__BP_Eridian_Resonator_C'
-    type_11_attr = 'StaticMeshComponent.Object..StaticMesh'
-    type_11_default = '/Game/Gear/Game/Resonator/Model/Meshes/SM_Eridian_Resonator.SM_Eridian_Resonator'
-
-    # Used letters, per-map, from the "SM_Letter" mesh set, so we know which ones
-    # we have available to inject.
-    used_sm_letters_by_map = {
-            'atlashq_p': {'A', 'B', 'F', 'I', 'K', 'L', 'N', 'O', 'Q', 'S'},
-            'bar_p': {'A', 'C', 'D', 'E', 'G', 'H', 'L', 'N', 'O', 'R', 'S', 'U', 'V'},
-            'cityvault_p': {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'Y'},
-            'covslaughter_p': {'C', 'O', 'V'},
-            'creatureslaughter_p': {'C', 'O', 'V'},
-            'desert_p': {'A', 'B', 'C', 'D', 'E', 'G', 'I', 'L', 'M', 'N', 'O', 'P', 'S', 'T', 'W'},
-            'finalboss_p': {'B', 'M', 'N', 'O', 'T', 'W'},
-            'mansion_p': {'A', 'E', 'M', 'T'},
-            'marshfields_p': {'A', 'C', 'E', 'K', 'L', 'T'},
-            'motorcade_p': {'B', 'C', 'E', 'I', 'J', 'K', 'L', 'N', 'R', 'W'},
-            'motorcadefestival_p': {'A', 'B', 'C', 'D', 'E', 'G', 'I', 'K', 'L', 'N', 'O', 'S', 'T'},
-            'motorcadeinterior_p': {'C', 'E', 'L', 'M', 'O', 'W'},
-            'prologue_p': {'A', 'C', 'E', 'G', 'I', 'K', 'L', 'O', 'P', 'R', 'S', 'T', 'Y'},
-            'sanctuary3_p': {'A', 'C', 'E', 'I', 'L', 'M', 'N', 'O', 'P', 'R', 'T', 'X', 'Z'},
-            'strip_p': {'J', 'K', 'M', 'O', 'P', 'R', 'S', 'T', 'W'},
-            'towers_p': {'A', 'C', 'D', 'E', 'F', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'Y'},
-            'trashtown_p': {'A', 'H', 'I', 'L', 'N', 'R', 'S', 'T'},
-            'wetlands_p': {'A', 'E', 'G', 'L', 'M', 'O', 'S', 'T'},
-            'woods_p': {'H', 'M', 'S', 'U'},
-            }
-
-    def type_11_delay_meshes(self, map_name_lower):
-        """
-        Function to yield StaticMesh object names which we can use for delay statements,
-        for the given `map_name_lower`.
-        """
-        for letter in string.ascii_uppercase:
-            if map_name_lower in self.used_sm_letters_by_map and letter in self.used_sm_letters_by_map[map_name_lower]:
-                continue
-            yield '/Game/LevelArt/Environments/_Global/Letters/Meshes/SM_Letter_{letter}.SM_Letter_{letter}'.format(letter=letter)
-
 class WL(GameInjector):
 
     # Game identifiers
@@ -435,29 +388,6 @@ class WL(GameInjector):
 
     # Default micropatch service name
     default_micropatch_name = 'DaffodilLaneA'
-
-    # Type-11 injection parameters
-    type_11_obj = '/Game/Pickups/Ammo/BPAmmoItem_Pistol.Default__BPAmmoItem_Pistol_C'
-    type_11_attr = 'ItemMeshComponent.Object..StaticMesh'
-    type_11_default = '/Game/Pickups/Ammo/Model/Meshes/SM_ammo_pistol.SM_ammo_pistol'
-
-    # Meshes to use for type-11 delays
-    _type_11_delay_meshes = [
-            '/Engine/EditorMeshes/Camera/SM_CraneRig_Arm.SM_CraneRig_Arm',
-            '/Engine/EditorMeshes/Camera/SM_CraneRig_Base.SM_CraneRig_Base',
-            '/Engine/EditorMeshes/Camera/SM_CraneRig_Body.SM_CraneRig_Body',
-            '/Engine/EditorMeshes/Camera/SM_CraneRig_Mount.SM_CraneRig_Mount',
-            '/Engine/EditorMeshes/Camera/SM_RailRig_Mount.SM_RailRig_Mount',
-            '/Engine/EditorMeshes/Camera/SM_RailRig_Track.SM_RailRig_Track',
-            ]
-
-    def type_11_delay_meshes(self, map_name_lower):
-        """
-        Function to yield StaticMesh object names which we can use for delay statements,
-        for the given `map_name_lower`.
-        """
-        for mesh in self._type_11_delay_meshes:
-            yield mesh
 
 class InjectHotfix:
 
